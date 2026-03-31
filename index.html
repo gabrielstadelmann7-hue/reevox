@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reevox - Jeux</title>
+
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="IMG_8395.png">
+
+
+
+
+<style>
+    body {
+        margin: 0;
+        background: #000814;
+        font-family: Arial, sans-serif;
+        color: white;
+    }
+
+
+
+
+    /* HEADER */
+    header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 15px 40px;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+
+
+
+    .logo {
+    height: 110px;
+    object-fit: contain;
+}
+
+
+
+
+    .search-box {
+        margin-left: auto;
+        position: relative;
+    }
+
+
+
+
+    .search-box input {
+        padding: 8px 15px;
+        border-radius: 20px;
+        border: none;
+        outline: none;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        width: 220px;
+        transition: 0.3s;
+    }
+
+
+
+
+    .search-box input:focus {
+        background: rgba(4, 83, 105, 0.2);
+        box-shadow: 0 0 10px #00eaff;
+    }
+
+
+
+
+    /* TITRE */
+    h2 {
+        margin: 25px 40px 10px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+
+
+
+    /* LIGNE NETFLIX */
+    .row {
+        display: flex;
+        overflow-x: auto;
+        gap: 20px;
+        padding: 10px 40px 40px;
+        scroll-behavior: smooth;
+    }
+
+
+
+
+    .row::-webkit-scrollbar {
+        height: 8px;
+    }
+
+
+
+
+    .row::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.25);
+        border-radius: 10px;
+    }
+
+
+
+
+    /* CARTE JEU */
+    .card {
+        flex: 0 0 auto;
+        width: 330px;
+        text-decoration: none;
+        color: white;
+        transition: 0.3s;
+        position: relative;
+    }
+
+
+
+
+    .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 12px;
+        transition: 0.3s;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+    }
+
+
+
+
+    .card:hover {
+        transform: scale(1.08);
+    }
+
+
+
+
+    .card:hover img {
+        filter: brightness(1.15);
+    }
+
+
+
+
+    .card-title {
+        margin-top: 8px;
+        font-size: 17px;
+        font-weight: bold;
+        text-shadow: 0 0 8px black;
+    }
+
+
+
+
+    /* ANIMATION */
+    .row {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeIn 0.7s forwards;
+    }
+
+
+
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+
+
+
+
+
+
+/* STYLE DU FILTRE DE DURÉE */
+#durationFilter {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 10px rgba(0,229,255,0.15);
+}
+
+
+
+
+/* Effet au survol */
+#durationFilter:hover {
+    background: rgba(0,229,255,0.2);
+    box-shadow: 0 0 15px rgba(0,229,255,0.4);
+}
+
+
+
+
+/* Effet au clic */
+#durationFilter:focus {
+    background: rgba(0,229,255,0.25);
+    box-shadow: 0 0 20px rgba(0,229,255,0.6);
+}
+
+
+
+
+/* Style des options */
+#durationFilter option {
+    background: #001220;
+    color: white;
+    border: none;
+}
+
+
+
+
+/* Animation d’apparition fluide */
+.card {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+
+
+
+/* Quand un jeu est masqué */
+.card.hide {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+    pointer-events: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.meme-button img {
+    width: 125px; /* taille parfaite comme tu voulais */
+    border-radius: 12px;
+    border: 3px solid white; /* contour blanc visible */
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 8px 20px rgba(255,255,255,0.2); /* léger halo blanc */
+}
+
+
+
+
+.meme-button img:hover {
+    transform: scale(1.08);
+    filter: brightness(1.15);
+    box-shadow: 0 0 20px rgba(255,255,255,0.6); /* effet glow au survol */
+}
+
+
+
+
+
+
+/* FLÈCHES */
+    .scroll-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(0, 234, 255, 0.3);
+        color: #00eaff;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        opacity: 0.7;
+    }
+
+
+    .scroll-btn:hover {
+        opacity: 1;
+        background: rgba(0, 234, 255, 0.2);
+        box-shadow: 0 0 20px rgba(0, 234, 255, 0.5);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+
+    .scroll-btn-left {
+        left: 10px;
+    }
+
+
+    .scroll-btn-right {
+        right: 10px;
+    }
+
+
+
+
+
+
+    /* ═══════════════════════════════════════════════════ */
+/* COLLE CE CSS DANS TON <style> EXISTANT             */
+/* Fonctionne uniquement sur téléphone (max 768px)    */
+/* ═══════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+    /* ── HEADER ── */
+    header {
+        padding: 10px 16px;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .logo {
+        height: 55px;
+    }
+
+    /* Cacher le filtre durée sur mobile (trop petit) */
+    #durationFilter {
+        display: none;
+    }
+
+    /* Barre de recherche prend toute la largeur */
+    .search-box {
+        margin-left: 0;
+        width: 100%;
+        order: 10; /* passe en bas du header */
+    }
+
+    .search-box input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 18px;
+        font-size: 15px;
+    }
+
+    /* Boutons meme plus petits */
+    .meme-button img {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 10px;
+        border-width: 2px;
+    }
+
+    /* ── TITRES ── */
+    h2 {
+        margin: 20px 16px 8px;
+        font-size: 18px;
+    }
+
+    /* ── LIGNES DE JEUX ── */
+    .row {
+        padding: 8px 16px 24px;
+        gap: 14px;
+        /* Snap scroll pour mobile */
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── CARTES ── */
+    .card {
+        width: 200px;
+        scroll-snap-align: start;
+    }
+
+    .card img {
+        height: 120px;
+        border-radius: 10px;
+    }
+
+    .card-title {
+        font-size: 14px;
+        margin-top: 6px;
+    }
+
+    /* ── FLÈCHES (cachées sur mobile, on swipe) ── */
+    .scroll-btn {
+        display: none;
+    }
+
+    /* ── BOUTON MOOD ── */
+    #moodBar {
+        margin: 10px 16px !important;
+        gap: 8px !important;
+    }
+
+    .mood-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    /* Bouton "Comment tu te sens" */
+    header + div {
+        margin: 14px 16px 0 !important;
+    }
+
+    /* ── SECTION SUGGÉRÉS ── */
+    #suggestedSection h2 {
+        margin: 20px 16px 8px !important;
+        font-size: 18px !important;
+    }
+
+    #suggestedRow {
+        padding: 8px 16px 24px !important;
+        gap: 14px !important;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sug-card {
+        width: 180px !important;
+        scroll-snap-align: start;
+    }
+
+    .sug-card img {
+        height: 110px !important;
+    }
+
+    .sug-card-title {
+        font-size: 13px !important;
+    }
+
+    .sug-reason {
+        font-size: 10px !important;
+    }
+}
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+</style>
+</head>
+
+
+
+
+<body>
+
+
+
+
+<header>
+    <img src="IMG_7957.png" class="logo" alt="Reevox">
+<select id="durationFilter">
+    <option value="">Durée (toutes)</option>
+    <option value="5">5 minutes</option>
+    <option value="10">10 minutes</option>
+    <option value="20">20 minutes</option>
+    <option value="30">30 minutes</option>
+</select>
+
+
+
+
+
+
+
+<a href="pagehub.html" class="meme-button">
+    <img src="Capture d’écran 2026-02-16 140343.png" alt="GameHub">
+</a>
+
+<a href="reevox-social.html" class="meme-button">
+    <img src="Capture d’écran 2026-03-06 094021.png" alt="GameHub">
+</a>
+
+
+
+
+<a href="compterivox.html" class="meme-button">
+    <img src="Capture d’écran 2026-02-16 225420.png" alt="GameHub">
+</a>
+
+
+
+
+<a href="infocompte.html" class="meme-button">
+    <img src="Capture d’écran 2026-02-24 113627.png" alt="GameHub">
+</a>
+
+
+<a href="ludic.html" class="meme-button">
+    <img src="Capture d’écran 2026-02-25 154909.png" alt="GameHub">
+</a>
+
+
+<style>
+.glow-btn {
+  padding: 2px 6px;
+  border-radius: 9999px;
+  border: 2px solid #a855f7;
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  transition: all 0.25s ease;
+}
+
+.glow-btn:hover {
+  background: rgba(168, 85, 247, 0.25);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.8);
+  transform: translateY(-2px);
+}
+</style>
+
+<a href="music.html" class="glow-btn">
+  🎵
+</a>
+
+
+
+
+
+
+
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Rechercher un jeu...">
+    </div>
+</header>
+
+
+
+
+
+<!-- BOUTON MOOD -->
+<div style="margin: 20px 40px 0;">
+    <button onclick="toggleMoodBar()" style="background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); color:white; padding:10px 24px; border-radius:20px; font-size:15px; cursor:pointer; transition:0.3s; backdrop-filter:blur(10px);"
+        onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+        🎭 Comment tu te sens ?
+    </button>
+</div>
+
+<!-- BARRE DE MOODS (cachée par défaut) -->
+<div id="moodBar" style="display:none; margin:12px 40px; display:none; gap:12px; flex-wrap:wrap;">
+    <button class="mood-btn" onclick="setMood('fun')"        data-tags="arcade,reflexes"        style="background:rgba(251,191,36,0.15);  border:2px solid rgba(251,191,36,0.5);  color:#fbbf24;">😄 Fun & Détente</button>
+    <button class="mood-btn" onclick="setMood('adrenaline')" data-tags="action,fps,survival"    style="background:rgba(239,68,68,0.15);   border:2px solid rgba(239,68,68,0.5);   color:#ef4444;">⚡ Adrénaline</button>
+    <button class="mood-btn" onclick="setMood('reflechir')"  data-tags="strategie,combat"       style="background:rgba(99,102,241,0.15);  border:2px solid rgba(99,102,241,0.5);  color:#818cf8;">🧠 Envie de réfléchir</button>
+    <button class="mood-btn" onclick="setMood('rapide')"     data-tags="arcade,classique"       style="background:rgba(16,185,129,0.15);  border:2px solid rgba(16,185,129,0.5);  color:#10b981;">⚡ Partie rapide</button>
+    <button class="mood-btn" onclick="setMood('competitif')" data-tags="multijoueur,fps,sport"  style="background:rgba(0,234,255,0.15);   border:2px solid rgba(0,234,255,0.5);   color:#00eaff;">🏆 Compétitif</button>
+    <button class="mood-btn" onclick="setMood('zombie')"     data-tags="zombie,survival,action" style="background:rgba(57,255,20,0.15);   border:2px solid rgba(57,255,20,0.5);   color:#39ff14;">🧟 Tuer des zombies</button>
+</div>
+
+<style>
+    .mood-btn {
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        font-family: Arial, sans-serif;
+    }
+    .mood-btn:hover { transform: scale(1.07); filter: brightness(1.3); }
+    .mood-btn.active { transform: scale(1.1); filter: brightness(1.4); outline: 3px solid white; }
+</style>
+
+<script>
+    let currentMood = null;
+
+    function toggleMoodBar() {
+        const bar = document.getElementById('moodBar');
+        const isVisible = bar.style.display === 'flex';
+        bar.style.display = isVisible ? 'none' : 'flex';
+    }
+
+    function setMood(mood) {
+        const btn = event.currentTarget;
+
+        // Si on reclique sur le même mood → réinitialiser
+        if (currentMood === mood) {
+            currentMood = null;
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('hide'));
+            return;
+        }
+
+        currentMood = mood;
+
+        // Activer visuellement le bon bouton
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Récupérer les tags de ce mood
+        const tags = btn.dataset.tags.split(',');
+
+        // Filtrer les cartes
+        document.querySelectorAll('.card').forEach(card => {
+            const cardTags = (card.dataset.tags || '').split(',');
+            const match = tags.some(tag => cardTags.includes(tag));
+            card.classList.toggle('hide', !match);
+        });
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Jeux disponibles sur PC</h2>
+
+
+
+
+<div class="row-container">
+    <button class="scroll-btn scroll-btn-left" onclick="scrollRow(-1)">‹</button>
+    <button class="scroll-btn scroll-btn-right" onclick="scrollRow(1)">›</button>
+
+
+
+
+
+
+<div class="row" id="gamesRow">
+
+
+
+
+
+
+
+
+    <!-- TU AJOUTES TES JEUX ICI -->
+    <!-- FORMAT : data-title doit contenir le nom du jeu -->
+
+
+<a href="reevox-games (12).html" class="card" data-title="plus de jeu"   data-duration="30"   data-tags="action,adrenaline,classique">
+        <img src="Capture d’écran 2026-03-02 150111.png">
+        <div class="card-title">plus de jeu</div>
+    </a>
+
+
+
+
+
+
+    <a href="jeux1.html" class="card" data-title="snake"  data-duration="5"   data-tags="arcade,reflexes,classique">
+        <img src="Capture d’écran 2026-02-15 200634.png">
+        <div class="card-title">snake</div>
+
+
+
+
+
+
+
+
+
+
+
+
+    </a>
+
+
+
+
+    <a href="jeux3.html" class="card" data-title="zombattack"   data-duration="20"   data-tags="action,survival,zombie">
+        <img src="Capture d’écran 2026-02-16 111511.png">
+        <div class="card-title">zombattack</div>
+    </a>
+
+
+
+
+    <a href="jeux4.html" class="card" data-title="conkete"   data-duration="30"    data-tags="strategie,combat,multijoueur">
+        <img src="Capture d’écran 2026-02-16 180219.png">
+        <div class="card-title">conkete</div>
+    </a>
+
+
+
+
+    <a href="jeux5.html" class="card" data-title="neon void"     data-duration="5"    data-tags="strategie,arcade,reflexes">
+        <img src="Capture d’écran 2026-03-03 205144.png">
+        <div class="card-title">neon void</div>
+    </a>
+
+
+
+
+    <a href="jeux6.html" class="card" data-title="royal chess"  data-duration="10"    data-tags="strategie,arcade,reflexes" >
+        <img src="Capture d’écran 2026-03-03 214056.png">
+        <div class="card-title">royal chess</div>
+    </a>
+
+
+
+
+    
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<h2>Jeux disponibles sur mobile</h2>
+
+
+
+
+<div class="row" id="gamesRow">
+
+
+
+
+
+
+
+
+    <!-- TU AJOUTES TES JEUX ICI -->
+    <!-- FORMAT : data-title doit contenir le nom du jeu -->
+<a href="jeux2.html" class="card" data-title="exive"  data-duration="10"   data-tags="arcade,reflexes,mobile">
+        <img src="Capture d’écran 2026-02-16 105203.png">
+        <div class="card-title">exive</div>
+
+
+
+
+
+
+
+
+
+
+
+
+    </a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    // RECHERCHE DYNAMIQUE
+    const search = document.getElementById("search");
+    const cards = document.querySelectorAll(".card");
+
+
+
+
+    search.addEventListener("input", () => {
+        const q = search.value.toLowerCase();
+
+
+
+
+        cards.forEach(card => {
+            const title = card.dataset.title.toLowerCase();
+            card.style.display = title.includes(q) ? "block" : "none";
+        });
+    });
+
+
+// DÉFILEMENT AVEC FLÈCHES
+    function scrollRow(direction) {
+        const row = document.getElementById("gamesRow");
+        const scrollAmount = 350; // Distance de défilement
+        row.scrollBy({
+            left: direction * scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    const durationFilter = document.getElementById("durationFilter");
+
+
+
+
+    durationFilter.addEventListener("change", () => {
+        const selected = durationFilter.value;
+
+
+
+
+        cards.forEach(card => {
+            const duration = card.dataset.duration;
+
+
+
+
+            // Si aucune durée sélectionnée → tout afficher
+            if (selected === "") {
+                card.style.display = "block";
+                return;
+            }
+
+
+
+
+            // Sinon afficher seulement les jeux qui matchent
+            card.style.display = (duration === selected) ? "block" : "none";
+        });
+    });
+</script>
+
+
+
+
+<script>
+    const search = document.getElementById("search");
+    const durationFilter = document.getElementById("durationFilter");
+    const cards = document.querySelectorAll(".card");
+
+
+
+
+    function applyFilters() {
+        const q = search.value.toLowerCase();
+        const selectedDuration = durationFilter ? durationFilter.value : "";
+
+
+
+
+        cards.forEach(card => {
+            const title = card.dataset.title.toLowerCase();
+            const duration = card.dataset.duration;
+
+
+
+
+            const matchTitle = title.includes(q);
+            const matchDuration = selectedDuration === "" || duration === selectedDuration;
+
+
+
+
+            if (matchTitle && matchDuration) {
+                card.classList.remove("hide");
+            } else {
+                card.classList.add("hide");
+            }
+        });
+    }
+
+
+
+
+    search.addEventListener("input", applyFilters);
+    if (durationFilter) durationFilter.addEventListener("change", applyFilters);
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+<script>
+    (function() {
+        const user   = localStorage.getItem('reevox_user');
+        const expiry = localStorage.getItem('reevox_subscription_expiry');
+        if (!user || !expiry || parseInt(expiry) < Date.now()) {
+            window.location.href = 'paiement.html';
+        }
+    })();
+</script>
+
+
+
+
+
+<script src="reevox-mini-player.js"></script>
+
+
+
+
+
+</body>
+</html>
+
+

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reevox – Jeux Gratuits</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#03060e;--bg1:#070c18;--bg2:#0b1122;--bg3:#0f172a;
+  --border:#162040;--bhi:#1e3260;
+  --blue:#1a6bff;--blhi:#4d8fff;--bglow:rgba(26,107,255,.28);--bdim:rgba(26,107,255,.1);
+  --text:#e6eeff;--t2:#7b94c4;--t3:#334d7a;
+  --red:#ff3d3d;--green:#00e5a0;--orange:#f59e0b;--cyan:#00cfff;
+  --fh:'Rajdhani',sans-serif;--fb:'DM Sans',sans-serif;--tr:.15s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg0);color:var(--text);font-family:var(--fb);font-size:14px;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,107,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(26,107,255,.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:1200px;height:600px;background:radial-gradient(ellipse,rgba(26,107,255,.1) 0%,transparent 68%);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg1)}::-webkit-scrollbar-thumb{background:var(--bhi);border-radius:3px}
+
+header{position:sticky;top:0;z-index:300;background:rgba(3,6,14,.94);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 1.5rem;gap:1rem}
+.back{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--bg3);border:1px solid var(--bhi);border-radius:7px;color:var(--t2);font-size:12px;font-weight:500;text-decoration:none;transition:all var(--tr);flex-shrink:0}
+.back:hover{border-color:var(--blue);color:var(--text);box-shadow:0 0 12px var(--bglow)}
+.back svg{width:12px;height:12px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.logo-box{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0a1fe0,#1a6bff);border:1.5px solid var(--bhi);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.logo-box img{width:100%;height:100%;object-fit:contain}
+.logo-name{font-family:var(--fh);font-size:22px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+.logo-name em{color:var(--blhi);font-style:normal}
+.logo-sub{font-size:9px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:1px}
+.sw{flex:1;max-width:440px;position:relative}
+.sw input{width:100%;padding:8px 14px 8px 38px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--fb);font-size:13px;outline:none;transition:all var(--tr)}
+.sw input::placeholder{color:var(--t3)}
+.sw input:focus{border-color:var(--blue);background:var(--bg2);box-shadow:0 0 0 3px var(--bdim)}
+.sw .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+.sdrop{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--bg2);border:1px solid var(--bhi);border-radius:11px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8);z-index:600;max-height:400px;overflow-y:auto}
+.sdrop.open{display:block}
+.sdi{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;transition:background var(--tr);border-bottom:1px solid var(--border)}
+.sdi:last-child{border-bottom:none}
+.sdi:hover{background:var(--bg3)}
+.sdi img{width:52px;height:34px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.sdi .sn{font-weight:600;font-size:12.5px}
+.sdi .sm{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px}
+.sd-empty{padding:14px;color:var(--t3);text-align:center;font-size:13px}
+.gcnt{margin-left:auto;background:var(--bdim);border:1px solid var(--bhi);border-radius:5px;padding:3px 10px;font-size:11px;color:var(--blhi);font-weight:600;flex-shrink:0;white-space:nowrap}
+
+.fbar{position:sticky;top:60px;z-index:200;background:rgba(7,12,24,.96);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:0 1.5rem;height:48px;display:flex;align-items:center;gap:.6rem;overflow-x:auto;scrollbar-width:none}
+.fbar::-webkit-scrollbar{display:none}
+.fg{display:flex;align-items:center;gap:.3rem;flex-shrink:0}
+.fl{font-size:9px;font-weight:600;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-right:2px;white-space:nowrap}
+.pill{padding:4px 11px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--t2);font-family:var(--fb);font-size:11.5px;font-weight:500;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.pill:hover{border-color:var(--blue);color:var(--text);background:var(--bdim)}
+.pill.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 14px var(--bglow)}
+.vsep{width:1px;height:18px;background:var(--border);flex-shrink:0}
+
+main{position:relative;z-index:1;padding:0 1.5rem 5rem;max-width:1500px;margin:0 auto}
+.sh{display:flex;align-items:center;gap:10px;margin:2rem 0 1rem}
+.sh h2{font-family:var(--fh);font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.sh h2::before{content:'';width:3px;height:14px;border-radius:2px;flex-shrink:0}
+.sh .ln{flex:1;height:1px;background:var(--border)}
+.sh .nb{padding:2px 8px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.db h2::before{background:var(--blue);box-shadow:0 0 8px var(--bglow)}
+.db .nb{background:var(--bdim);border:1px solid var(--bhi);color:var(--blhi)}
+.dr h2::before{background:#ff3d49}
+.dr .nb{background:rgba(255,61,73,.1);border:1px solid rgba(255,61,73,.3);color:#ff8086}
+.dg h2::before{background:var(--green)}
+.dg .nb{background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.25);color:var(--green)}
+.do h2::before{background:var(--orange)}
+.do .nb{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);color:var(--orange)}
+.dp h2::before{background:#a855f7}
+.dp .nb{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.3);color:#c084fc}
+
+.feat{display:grid;grid-template-columns:2.4fr 1fr 1fr;gap:12px}
+.fbig{border-radius:14px;overflow:hidden;cursor:pointer;position:relative;transition:transform var(--tr),box-shadow var(--tr);background:var(--bg2);border:1px solid var(--border)}
+.fbig:hover{transform:translateY(-4px);border-color:var(--blue);box-shadow:0 14px 44px rgba(0,0,0,.6),0 0 22px var(--bglow)}
+.fbig .gt{aspect-ratio:16/9}
+.fbig .gi h3{font-size:17px}
+.fcol{display:flex;flex-direction:column;gap:12px}
+.fcol .gc .gt{aspect-ratio:16/9}
+
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:12px}
+.gc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform var(--tr),border-color var(--tr),box-shadow var(--tr)}
+.gc:hover{transform:translateY(-5px);border-color:var(--blue);box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 18px var(--bglow)}
+
+.gt{aspect-ratio:16/9;background:var(--bg3);position:relative;overflow:hidden}
+.gt .fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:42px;z-index:0}
+.gt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;transition:transform .3s}
+.gc:hover .gt img,.fbig:hover .gt img{transform:scale(1.07)}
+.gt::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(0,0,0,.55));z-index:2;pointer-events:none}
+.go{position:absolute;inset:0;background:rgba(3,6,14,.6);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity var(--tr);z-index:5}
+.gc:hover .go,.fbig:hover .go{opacity:1}
+.pc{width:52px;height:52px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px var(--bglow);transform:scale(.7);transition:transform var(--tr)}
+.gc:hover .pc,.fbig:hover .pc{transform:scale(1)}
+.pc svg{width:22px;height:22px;fill:#fff;margin-left:3px}
+.fbig .pc{width:62px;height:62px}
+.fbig .pc svg{width:26px;height:26px}
+
+.bd{position:absolute;top:7px;left:7px;padding:2px 7px;border-radius:4px;font-size:8.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;z-index:6;backdrop-filter:blur(6px)}
+.b-hot{background:rgba(255,61,61,.9);color:#fff}
+.b-new{background:rgba(0,229,160,.9);color:#000}
+.b-top{background:rgba(245,158,11,.9);color:#000}
+.b-fnaf{background:rgba(26,0,48,.9);color:#c084fc;border:1px solid #7c3aed}
+.dc{position:absolute;top:7px;right:7px;background:rgba(3,6,14,.75);border:1px solid var(--bhi);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--cyan);z-index:6;backdrop-filter:blur(4px)}
+
+.gi{padding:9px 12px 11px;border-top:1px solid var(--border)}
+.gi h3{font-family:var(--fh);font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.gm{display:flex;align-items:center;justify-content:space-between;font-size:9.5px;color:var(--t3)}
+.gm .tag{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.stars{color:var(--orange)}
+
+#mo{display:none;position:fixed;inset:0;z-index:900;background:rgba(3,6,14,.92);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:1rem}
+#mo.open{display:flex}
+.modal{background:var(--bg1);border:1px solid var(--bhi);border-radius:18px;width:100%;max-width:1040px;max-height:93vh;display:flex;flex-direction:column;box-shadow:0 40px 100px rgba(0,0,0,.9),0 0 50px var(--bglow);animation:mIn .2s cubic-bezier(.16,1,.3,1);overflow:hidden}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(20px)}to{opacity:1;transform:none}}
+.mh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mthumb{width:52px;height:34px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.mh h3{font-family:var(--fh);font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.mact{display:flex;gap:6px;flex-shrink:0}
+.mbtn{padding:6px 13px;border-radius:6px;font-family:var(--fb);font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--border);transition:all var(--tr);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.mbtn-o{background:var(--bdim);color:var(--blhi);border-color:var(--bhi)}
+.mbtn-o:hover{background:var(--blue);color:#fff}
+.mbtn-c{background:var(--bg3);color:var(--t2)}
+.mbtn-c:hover{background:rgba(255,61,61,.1);border-color:var(--red);color:var(--red)}
+.gfw{flex:1;position:relative;background:#000;min-height:520px}
+.gfw iframe{display:block;width:100%;height:100%;min-height:520px;border:none}
+.lsc{position:absolute;inset:0;z-index:10;background:var(--bg0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.lsc.gone{display:none}
+.lr{width:42px;height:42px;border:2.5px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lsc p{color:var(--t3);font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:1.4rem;text-align:center;color:var(--t3);font-size:11px}
+footer strong{color:var(--t2)}
+
+@media(max-width:900px){.feat{grid-template-columns:1fr 1fr}.fbig{grid-column:1/-1}.fcol{flex-direction:row}}
+@media(max-width:600px){header{padding:0 1rem;gap:.7rem}.gcnt{display:none}main{padding:0 1rem 4rem}.fbar{padding:0 1rem}.gg{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px}.feat{grid-template-columns:1fr}.fcol{flex-direction:column}.logo-sub{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="index.html">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12L6 8l4-4"/></svg>
+    Retour
+  </a>
+  <a class="logo" href="#">
+    <img src="IMG_7957.png" alt="Reevox" style="height: 60px; width: auto;">
+</a>
+  <div class="sw">
+    <input type="text" id="si" placeholder="FNAF, Slope, Plants vs Zombies, Bejeweled…" autocomplete="off">
+    <span class="ico"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="9" cy="9" r="6"/><path d="M15 15l-3.5-3.5"/></svg></span>
+    <div class="sdrop" id="sdrop"></div>
+  </div>
+  <div class="gcnt" id="gcnt">— jeux</div>
+</header>
+
+<div class="fbar">
+  <div class="fg">
+    <span class="fl">Catégorie</span>
+    <button class="pill active" onclick="sf('cat','all',this)">🎮 Tous</button>
+    <button class="pill" onclick="sf('cat','horreur',this)">👻 Horreur</button>
+    <button class="pill" onclick="sf('cat','runner',this)">🏃 Runner</button>
+    <button class="pill" onclick="sf('cat','course',this)">🚗 Course</button>
+    <button class="pill" onclick="sf('cat','action',this)">⚔️ Action</button>
+    <button class="pill" onclick="sf('cat','puzzle',this)">🧩 Puzzle</button>
+    <button class="pill" onclick="sf('cat','idle',this)">💰 Idle</button>
+    <button class="pill" onclick="sf('cat','classique',this)">🕹️ Classique</button>
+    <button class="pill" onclick="sf('cat','2p',this)">👥 2J</button>
+    <button class="pill" onclick="sf('cat','io',this)">.io</button>
+    <button class="pill" onclick="sf('cat','voir plus',this)">voir plus</button>
+  </div>
+  <div class="vsep"></div>
+  <div class="fg">
+    <span class="fl">⏱</span>
+    <button class="pill active" onclick="sf('dur','all',this)">Tous</button>
+    <button class="pill" onclick="sf('dur','q',this)">≤5min</button>
+    <button class="pill" onclick="sf('dur','m',this)">5–20min</button>
+    <button class="pill" onclick="sf('dur','l',this)">20+min</button>
+  </div>
+</div>
+
+<main>
+  <div id="featSec">
+    <div class="sh db"><h2>🔥 À la Une</h2><div class="ln"></div><span class="nb">FEATURED</span></div>
+    <div class="feat" id="featRow"></div>
+  </div>
+  <div id="sec-horreur"> <div class="sh dr"><h2>👻 Horreur / FNAF</h2><div class="ln"></div><span class="nb" id="cnt-horreur"></span></div><div class="gg" id="g-horreur"></div></div>
+  <div id="sec-runner">  <div class="sh db"><h2>🏃 Runner</h2><div class="ln"></div><span class="nb" id="cnt-runner"></span></div><div class="gg" id="g-runner"></div></div>
+  <div id="sec-course">  <div class="sh db"><h2>🚗 Course</h2><div class="ln"></div><span class="nb" id="cnt-course"></span></div><div class="gg" id="g-course"></div></div>
+  <div id="sec-action">  <div class="sh db"><h2>⚔️ Action</h2><div class="ln"></div><span class="nb" id="cnt-action"></span></div><div class="gg" id="g-action"></div></div>
+  <div id="sec-puzzle">  <div class="sh db"><h2>🧩 Puzzle</h2><div class="ln"></div><span class="nb" id="cnt-puzzle"></span></div><div class="gg" id="g-puzzle"></div></div>
+  <div id="sec-idle">    <div class="sh dg"><h2>💰 Idle &amp; Clicker</h2><div class="ln"></div><span class="nb" id="cnt-idle"></span></div><div class="gg" id="g-idle"></div></div>
+  <div id="sec-classique"><div class="sh dp"><h2>🕹️ Classiques</h2><div class="ln"></div><span class="nb" id="cnt-classique"></span></div><div class="gg" id="g-classique"></div></div>
+  <div id="sec-2p">      <div class="sh do"><h2>👥 2 Joueurs</h2><div class="ln"></div><span class="nb" id="cnt-2p"></span></div><div class="gg" id="g-2p"></div></div>
+  <div id="sec-io">      <div class="sh db"><h2>.io</h2><div class="ln"></div><span class="nb" id="cnt-io"></span></div><div class="gg" id="g-io"></div></div>
+  <div id="searchSec" style="display:none">
+    <div class="sh db"><h2 id="gtitle">Résultats</h2><div class="ln"></div><span class="nb" id="rcnt"></span></div>
+    <div class="gg" id="mainGrid"></div>
+  </div>
+
+  <div id="sec-plus">
+  <div class="sh db"><h2>🕹️ Jeux en Plus</h2><div class="ln"></div><span class="nb" id="cnt-plus"></span></div>
+  <div class="gg" id="g-plus"></div>
+</div>
+</main>
+
+<footer>
+  <strong>Reevox Game Hub</strong> — Jeux HTML5 jouables directement dans le navigateur<br>
+  <span style="opacity:.5">Pas de téléchargement · Pas d'installation · Gratuit</span>
+</footer>
+
+<div id="mo" onclick="cmb(event)">
+  <div class="modal">
+    <div class="mh">
+      <span class="ldot"></span>
+      <img class="mthumb" id="mthumb" src="" alt="" onerror="this.style.opacity=0">
+      <h3 id="mtitle">…</h3>
+      <div class="mact">
+        <a class="mbtn mbtn-o" id="mext" href="#" target="_blank" rel="noopener">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3H3v10h10V9M10 2h4v4M14 2L8 8"/></svg>
+          Ouvrir
+        </a>
+        <button class="mbtn mbtn-c" onclick="cm()">✕ Fermer</button>
+      </div>
+    </div>
+    <div class="gfw">
+      <div class="lsc" id="lsc"><div class="lr"></div><p>Chargement…</p></div>
+      <iframe id="gf" src="" allowfullscreen frameborder="0"
+        allow="fullscreen; autoplay; pointer-lock; microphone; clipboard-read; clipboard-write; gamepad"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// Sources
+const W  = s => `https://windowslover1234.github.io/games/${s}/`;
+const C6 = s => `https://classroom6x.org/en/full/${s}`;
+
+// Images
+const CG = s => `https://imgs.crazygames.com/${s}_16x9/20231113084128/${s}_16x9-cover.jpg`;
+
+const G = [
+
+/* ══ HORREUR / FNAF ══ */
+// FNAF via classroom6x.org qui fonctionnait bien
+{id:350,t:"Five Nights at Freddy's", c:"horreur",d:"l",s:5,b:"fnaf",e:"🐻",
+  url:"https://irv77.github.io/hd_fnaf/1/index.html",
+  img:"https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/FNAF_Freddy_Fazbear%27s_Pizza.webp/300px-FNAF_Freddy_Fazbear%27s_Pizza.webp",
+  ext:"https://irv77.github.io/hd_fnaf/1/index.html"},
+
+{id:351,t:"FNAF 2",                  c:"horreur",d:"l",s:5,b:"fnaf",e:"🐰",
+  url:"https://irv77.github.io/hd_fnaf/2/index.html",
+  img:"https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/FNAF2.jpg/220px-FNAF2.jpg",
+  ext:"https://irv77.github.io/hd_fnaf/2/index.html"},
+
+{id:352,t:"FNAF 3",                  c:"horreur",d:"l",s:4,b:"fnaf",e:"👻",
+  url:"https://irv77.github.io/hd_fnaf/3/index.html",
+  img:"https://upload.wikimedia.org/wikipedia/en/thumb/d/da/Five_Nights_at_Freddy%27s_3.png/220px-Five_Nights_at_Freddy%27s_3.png",
+  ext:"https://irv77.github.io/hd_fnaf/3/index.html"},
+
+{id:353,t:"FNAF 4",                  c:"horreur",d:"l",s:4,b:"fnaf",e:"🌙",
+  url:"https://irv77.github.io/hd_fnaf/4/index.html",
+  img:"https://upload.wikimedia.org/wikipedia/en/thumb/3/33/Five_Nights_at_Freddy%27s_4.jpg/220px-Five_Nights_at_Freddy%27s_4.jpg",
+  ext:"https://irv77.github.io/hd_fnaf/4/index.html"},
+
+
+{id:6, t:"Granny 2", c:"horreur", d:"m", s:4, b:"hot", e:"🔨",
+  url:"https://ubg77.github.io/update/granny/",
+  img:"https://imgs.crazygames.com/granny_16x9/20231113084128/granny_16x9-cover.jpg",
+  ext:"https://ubg77.github.io/update/granny/"},
+
+/* ══ RUNNER ══ */
+{id:10, t:"Slope",                   c:"runner", d:"q",s:5,b:"top",e:"⚽",
+  url:W("slope"),
+  img:"https://imgs.crazygames.com/slope_16x9/20231113084128/slope_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/slope/"},
+
+{id:11, t:"Eggy Car",                c:"runner", d:"q",s:5,b:"hot",e:"🥚",
+  url:W("eggy-car"),
+  img:"https://imgs.crazygames.com/eggy-car_16x9/20231113084128/eggy-car_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/eggy-car/"},
+
+{id:12, t:"Drift Boss",              c:"runner", d:"q",s:4,b:"",e:"🚗",
+  url:W("drift-boss"),
+  img:"https://imgs.crazygames.com/drift-boss_16x9/20231113084128/drift-boss_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/drift-boss/"},
+
+{id:13, t:"Getting Over It",         c:"runner", d:"m",s:4,b:"",e:"🪣",
+  url:W("getting-over-it"),
+  img:"https://imgs.crazygames.com/getting-over-it_16x9/20231113084128/getting-over-it_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/getting-over-it/"},
+
+{id:14, t:"Speed King",              c:"runner", d:"q",s:3,b:"",e:"⚡",
+  url:W("speed-king"),
+  img:"https://imgs.crazygames.com/speed-king_16x9/20231113084128/speed-king_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/speed-king/"},
+
+{id:15, t:"Roper",                   c:"runner", d:"q",s:3,b:"",e:"🪝",
+  url:W("roper"),
+  img:"https://imgs.crazygames.com/roper_16x9/20231113084128/roper_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/roper/"},
+
+{id:16, t:"Slimey, Jump!",           c:"runner", d:"q",s:3,b:"new",e:"🫧",
+  url:W("slimey-jump"),
+  img:"https://imgs.crazygames.com/slimey-jump_16x9/20231113084128/slimey-jump_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/slimey-jump/"},
+
+/* ══ COURSE ══ */
+{id:20, t:"Drive Mad",               c:"course", d:"m",s:5,b:"hot",e:"🚗",
+  url:W("drive-mad"),
+  img:"https://imgs.crazygames.com/drive-mad_16x9/20231113084128/drive-mad_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/drive-mad/"},
+
+{id:21, t:"Monster Tracks",          c:"course", d:"m",s:4,b:"",e:"🚛",
+  url:W("monster-tracks"),
+  img:"https://imgs.crazygames.com/monster-tracks_16x9/20231113084128/monster-tracks_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/monster-tracks/"},
+
+{id:22, t:"Tube Jumpers",            c:"course", d:"q",s:4,b:"new",e:"🛶",
+  url:W("tube-jumpers"),
+  img:"https://imgs.crazygames.com/tube-jumpers_16x9/20231113084128/tube-jumpers_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/tube-jumpers/"},
+
+{id:23, t:"Wall of Doom",            c:"course", d:"q",s:3,b:"",e:"🧱",
+  url:W("wall-of-doom"),
+  img:"https://imgs.crazygames.com/wall-of-doom_16x9/20231113084128/wall-of-doom_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/wall-of-doom/"},
+
+/* ══ ACTION ══ */
+{id:30, t:"Plants vs. Zombies",      c:"action", d:"l",s:5,b:"top",e:"🌻",
+  url:W("pvz"),
+  img:"https://imgs.crazygames.com/plants-vs-zombies_16x9/20231113084128/plants-vs-zombies_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/pvz/"},
+
+{id:31, t:"Pixel Gun Apocalypse 2",  c:"action", d:"m",s:4,b:"",e:"🔫",
+  url:W("pga2"),
+  img:"https://imgs.crazygames.com/pixel-gun-apocalypse-2_16x9/20231113084128/pixel-gun-apocalypse-2_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/pga2/"},
+
+{id:32, t:"Castle Wars: Modern",     c:"action", d:"m",s:4,b:"new",e:"🏰",
+  url:W("castel-wars-modern"),
+  img:"https://imgs.crazygames.com/castle-wars-modern_16x9/20231113084128/castle-wars-modern_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/castel-wars-modern/"},
+
+{id:33, t:"Vectoid TD 3D",           c:"action", d:"m",s:3,b:"",e:"🔺",
+  url:W("vectoid"),
+  img:"https://imgs.crazygames.com/vectoid-td-3d_16x9/20231113084128/vectoid-td-3d_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/vectoid/"},
+
+{id:34, t:"Recoil",                  c:"action", d:"q",s:3,b:"",e:"💥",
+  url:W("recoil"),
+  img:"https://imgs.crazygames.com/recoil_16x9/20231113084128/recoil_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/recoil/"},
+
+{id:35, t:"Super Fowlist",           c:"action", d:"q",s:3,b:"",e:"🐔",
+  url:W("super-fowlist"),
+  img:"https://imgs.crazygames.com/super-fowlist_16x9/20231113084128/super-fowlist_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/super-fowlist/"},
+
+{id:36, t:"3D Fun House",            c:"action", d:"m",s:3,b:"",e:"🎪",
+  url:W("3d-fun-house"),
+  img:"https://imgs.crazygames.com/3d-fun-house_16x9/20231113084128/3d-fun-house_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/3d-fun-house/"},
+
+/* ══ PUZZLE ══ */
+{id:40, t:"Bejeweled 3",             c:"puzzle", d:"m",s:5,b:"top",e:"💎",
+  url:W("bjhtml5"),
+  img:"https://imgs.crazygames.com/bejeweled-3_16x9/20231113084128/bejeweled-3_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/bjhtml5/"},
+
+{id:41, t:"Bejeweled 2",             c:"puzzle", d:"m",s:4,b:"",e:"💎",
+  url:W("bj2"),
+  img:"https://imgs.crazygames.com/bejeweled-2_16x9/20231113084128/bejeweled-2_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/bj2/"},
+
+{id:42, t:"Bejeweled Twist",         c:"puzzle", d:"m",s:4,b:"",e:"🌀",
+  url:W("bjt"),
+  img:"https://imgs.crazygames.com/bejeweled-twist_16x9/20231113084128/bejeweled-twist_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/bjt/"},
+
+{id:43, t:"Zuma",                    c:"puzzle", d:"m",s:5,b:"top",e:"🐸",
+  url:W("zuma"),
+  img:"https://imgs.crazygames.com/zuma_16x9/20231113084128/zuma_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/zuma/"},
+
+{id:44, t:"2048",                    c:"puzzle", d:"q",s:5,b:"top",e:"🔢",
+  url:"https://play2048.co/",
+  img:"https://play2048.co/favicon-512x512.png",
+  ext:"https://play2048.co/"},
+
+/* ══ IDLE / CLICKER ══ */
+{id:50, t:"Cookie Clicker",          c:"idle",   d:"l",s:5,b:"top",e:"🍪",
+  url:"https://orteil.dashnet.org/cookieclicker/",
+  img:"https://orteil.dashnet.org/cookieclicker/img/favicon.ico",
+  ext:"https://orteil.dashnet.org/cookieclicker/"},
+
+{id:51, t:"Survival Craft",          c:"idle",   d:"l",s:4,b:"new",e:"🌲",
+  url:W("survival-craft"),
+  img:"https://imgs.crazygames.com/survival-craft_16x9/20231113084128/survival-craft_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/survival-craft/"},
+
+{id:52, t:"Clicker Heroes",          c:"idle",   d:"l",s:5,b:"top",e:"⚔️",
+  url:"https://www.clickerheroes.com/",
+  img:"https://www.clickerheroes.com/img/ui/ch_logo2.png",
+  ext:"https://www.clickerheroes.com/"},
+
+/* ══ CLASSIQUES ══ */
+{id:60, t:"Thirty Dollar Website",   c:"classique",d:"m",s:4,b:"new",e:"🎵",
+  url:W("30dw"),
+  img:"https://imgs.crazygames.com/thirty-dollar-website_16x9/20231113084128/thirty-dollar-website_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/30dw/"},
+{id:90, t:"Minecraft Classic", c:"classique", d:"l", s:5, b:"top", e:"⛏️",
+  url:"https://classic.minecraft.net/",
+  img:"https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_The-Wild-Update_540x300.jpg",
+  ext:"https://classic.minecraft.net/"},
+/* ══ 2 JOUEURS ══ */
+{id:70, t:"Fireboy & Watergirl",     c:"2p",     d:"m",s:5,b:"top",e:"🔥",
+  url:W("fireboy-and-watergirl-1"),
+  img:"https://imgs.crazygames.com/fireboy-and-watergirl_16x9/20231113084128/fireboy-and-watergirl_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/fireboy-and-watergirl-1/"},
+
+{id:71, t:"Rooftop Snipers",         c:"2p",     d:"q",s:5,b:"top",e:"🔫",
+  url:W("rooftop-snipers"),
+  img:"https://imgs.crazygames.com/rooftop-snipers_16x9/20231113084128/rooftop-snipers_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/rooftop-snipers/"},
+
+{id:72, t:"Tug The Table",           c:"2p",     d:"q",s:4,b:"",e:"🪑",
+  url:W("tug-the-table"),
+  img:"https://imgs.crazygames.com/tug-the-table_16x9/20231113084128/tug-the-table_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/tug-the-table/"},
+
+/* ══ .IO ══ */
+{id:80, t:"Shell Shockers",          c:"io",     d:"q",s:5,b:"hot",e:"🥚",
+  url:"https://shellshock.io",
+  img:"https://shellshock.io/img/ss-logo-200.png",
+  ext:"https://shellshock.io"},
+
+{id:81, t:"Smash Karts",             c:"io",     d:"m",s:5,b:"top",e:"🏎️",
+  url:W("smash-karts"),
+  img:"https://imgs.crazygames.com/smash-karts_16x9/20231113084128/smash-karts_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/smash-karts/"},
+
+{id:82, t:"1v1.LOL",                 c:"io",     d:"m",s:5,b:"hot",e:"🏗️",
+  url:W("1v1-lol"),
+  img:"https://imgs.crazygames.com/1v1-lol_16x9/20231113084128/1v1-lol_16x9-cover.jpg",
+  ext:"https://windowslover1234.github.io/games/1v1-lol/"},
+{id:83, t:"Slither.io", c:"io", d:"m", s:5, b:"hot", e:"🐍",
+  url:"https://slither.io",
+  img:"https://imgs.crazygames.com/slither-io_16x9/20231113084128/slither-io_16x9-cover.jpg",
+  ext:"https://slither.io"},
+{id:84, t:"Deadshot.io", c:"io", d:"m", s:5, b:"hot", e:"🎯",
+  url:"https://deadshot.io",
+  img:"https://imgs.crazygames.com/deadshot-io_16x9/20231113084128/deadshot-io_16x9-cover.jpg",
+  ext:"https://deadshot.io"}, 
+
+/* ══ JEUX EN PLUS ══ */
+{id:100,t:"Madalin Stunt Cars Pro",  c:"plus",d:"m",s:5,b:"hot",e:"🚗",
+  url:"https://www.onlinegames.io/games/2023/unity/madalin-stunt-cars-pro/index.html",
+  img:"https://www.onlinegames.io/media/posts/401/responsive/Madalin-Stunt-Cars-Pro-Game-xs.jpg",
+  ext:"https://www.onlinegames.io/madalin-stunt-cars-pro/"},
+
+{id:101,t:"Stickman GTA City",       c:"plus",d:"m",s:5,b:"new",e:"🏙️",
+  url:"https://cloud.onlinegames.io/games/2024/unity3/stickman-gta-city/index-og.html",
+  img:"https://www.onlinegames.io/media/posts/900/responsive/stickman-gta-city-free-xs.jpg",
+  ext:"https://www.onlinegames.io/stickman-gta-city/"},
+
+{id:102,t:"CS Online",               c:"plus",d:"m",s:5,b:"top",e:"🔫",
+  url:"https://www.onlinegames.io/games/2023/unity2/cs-online/index.html",
+  img:"https://www.onlinegames.io/media/posts/434/responsive/CS-Online-xs.jpg",
+  ext:"https://www.onlinegames.io/cs-online/"},
+
+{id:103,t:"Drift Hunters Pro",       c:"plus",d:"m",s:5,b:"hot",e:"🏎️",
+  url:"https://www.onlinegames.io/games/2023/unity/drift-hunters-pro/index.html",
+  img:"https://www.onlinegames.io/media/posts/397/responsive/Drift-Hunters-Pro-xs.jpg",
+  ext:"https://www.onlinegames.io/drift-hunters-pro/"},
+
+{id:104,t:"Capybara Clicker Pro",    c:"plus",d:"l",s:4,b:"new",e:"🐾",
+  url:"https://www.onlinegames.io/games/2023/q2/capybara-clicker-pro/index.html",
+  img:"https://www.onlinegames.io/media/posts/554/responsive/Capybara-Clicker-Pro-xs.jpg",
+  ext:"https://www.onlinegames.io/capybara-clicker-pro/"},
+
+{id:105,t:"Guerrillas.io",           c:"plus",d:"m",s:5,b:"hot",e:"🪖",
+  url:"https://www.onlinegames.io/games/2023/unity2/guerrillas-io/index.html",
+  img:"https://www.onlinegames.io/media/posts/423/responsive/Guerillas-io-xs.jpg",
+  ext:"https://www.onlinegames.io/guerrillas-io/"},
+
+{id:106,t:"GTA Simulator",           c:"plus",d:"m",s:5,b:"hot",e:"🚔",
+  url:"https://www.onlinegames.io/games/2023/unity2/gta-simulator/index.html",
+  img:"https://www.onlinegames.io/media/posts/416/responsive/GTA-Simulator-xs.jpg",
+  ext:"https://www.onlinegames.io/gta-simulator/"},
+
+{id:107,t:"Cube Worlds",             c:"plus",d:"l",s:5,b:"top",e:"⛏️",
+  url:"https://cloud.onlinegames.io/games/2025/html/cube-worlds/index-og.html",
+  img:"https://www.onlinegames.io/media/posts/986/responsive/Cube-Worlds-xs.jpg",
+  ext:"https://www.onlinegames.io/cube-worlds/"},
+
+{id:108,t:"Geometry Dash",           c:"plus",d:"q",s:5,b:"top",e:"🟥",
+  url:"https://www.onlinegames.io/games/2023/q2/geometry-dash-freezenova/index.html",
+  img:"https://www.onlinegames.io/media/posts/510/responsive/Geometry-Dash-FreezeNova-xs.jpg",
+  ext:"https://www.onlinegames.io/geometry-dash-freezenova/"},
+
+{id:109,t:"Stickman Parkour",        c:"plus",d:"q",s:4,b:"new",e:"🏃",
+  url:"https://cloud.onlinegames.io/games/2024/construct/219/stickman-parkour/index-og.html",
+  img:"https://www.onlinegames.io/media/posts/871/responsive/stickman-parkour-OG-xs.jpg",
+  ext:"https://www.onlinegames.io/stickman-parkour/"},
+
+{id:110,t:"FPS Strike",              c:"plus",d:"m",s:5,b:"hot",e:"🎯",
+  url:"https://cloud.onlinegames.io/games/2024/unity2/fps-strike/index-og.html",
+  img:"https://www.onlinegames.io/media/posts/902/responsive/fps-strike-online-xs.jpg",
+  ext:"https://www.onlinegames.io/fps-strike/"},
+
+{id:111,t:"ArmedForces.io",          c:"plus",d:"m",s:5,b:"hot",e:"🪖",
+  url:"https://www.onlinegames.io/games/2021/unity3/armedforces-io/index.html",
+  img:"https://www.onlinegames.io/media/posts/234/responsive/Armed-Forces-io-xs.jpg",
+  ext:"https://www.onlinegames.io/armedforces-io/"},
+
+{id:112,t:"Drunken Duel",            c:"plus",d:"q",s:4,b:"new",e:"🥊",
+  url:"https://www.onlinegames.io/games/2024/code/2/drunken-duel/index.html",
+  img:"https://www.onlinegames.io/media/posts/698/responsive/Drunken-Duel-xs.jpg",
+  ext:"https://www.onlinegames.io/drunken-duel/"},
+
+{id:113,t:"99 Nights in the Forest", c:"plus",d:"l",s:4,b:"new",e:"🌲",
+  url:"https://cloud.onlinegames.io/games/2026/unity/99-nights-in-the-forest-survival/game.html",
+  img:"https://www.onlinegames.io/media/posts/1190/responsive/99-nights-in-the-forest-xs.webp",
+  ext:"https://www.onlinegames.io/99-nights-in-the-forest/"},
+
+{id:114,t:"Highway Racer Pro",       c:"plus",d:"m",s:5,b:"top",e:"🏎️",
+  url:"https://www.onlinegames.io/games/2024/unity/highway-racer-pro/index.html",
+  img:"https://www.onlinegames.io/media/posts/822/responsive/Highway-Racer-Pro-xs.jpg",
+  ext:"https://www.onlinegames.io/highway-racer-pro/"},
+
+{id:115,t:"Drift King",              c:"plus",d:"m",s:5,b:"hot",e:"💨",
+  url:"https://www.onlinegames.io/games/2024/unity/drift-king/index.html",
+  img:"https://www.onlinegames.io/media/posts/729/responsive/Drift-King-xs.jpg",
+  ext:"https://www.onlinegames.io/drift-king/"},
+
+{id:116,t:"Stickman Destruction",    c:"plus",d:"q",s:4,b:"",e:"💀",
+  url:"https://www.onlinegames.io/games/2021/unity3/stickman-destruction/index.html",
+  img:"https://www.onlinegames.io/media/posts/233/responsive/Stickman-Destruction-xs.jpg",
+  ext:"https://www.onlinegames.io/stickman-destruction/"},
+
+{id:117,t:"Legendary Sniper",        c:"plus",d:"m",s:4,b:"",e:"🔭",
+  url:"https://www.onlinegames.io/games/2021/unity3/legendary-sniper/index.html",
+  img:"https://www.onlinegames.io/media/posts/596/responsive/Legendary-Sniper-xs.jpg",
+  ext:"https://www.onlinegames.io/legendary-sniper/"},
+
+{id:118,t:"Pixelmon Town",           c:"plus",d:"l",s:4,b:"new",e:"🎮",
+  url:"https://cloud.onlinegames.io/games/2025/html/pixelmon-town/game.html",
+  img:"https://www.onlinegames.io/media/posts/1214/responsive/pixelmon-town-xs.webp",
+  ext:"https://www.onlinegames.io/pixelmon-town/"},
+
+{id:119,t:"Real Flight Simulator",   c:"plus",d:"m",s:4,b:"",e:"✈️",
+  url:"https://cloud.onlinegames.io/games/2023/unity2/real-flight-simulator/index.html",
+  img:"https://www.onlinegames.io/media/posts/342/responsive/Real-Flight-Simulator-2-xs.jpg",
+  ext:"https://www.onlinegames.io/real-flight-simulator/"},
+
+{id:120,t:"Dublix",                  c:"plus",d:"m",s:5,b:"new",e:"🌍",
+  url:"https://cloud.onlinegames.io/games/2025/unity4/dublix/game-og.html",
+  img:"https://www.onlinegames.io/media/posts/1126/responsive/dublix-xs.webp",
+  ext:"https://www.onlinegames.io/dublix/"},
+
+{id:121,t:"Masked Special Forces",   c:"plus",d:"m",s:4,b:"hot",e:"🎖️",
+  url:"https://www.onlinegames.io/games/2022/unity2/masked-special-forces/index.html",
+  img:"https://www.onlinegames.io/media/posts/310/responsive/Masked-Special-Forces-FPS-xs.jpg",
+  ext:"https://www.onlinegames.io/masked-special-forces/"},
+
+{id:122,t:"Highway Traffic",         c:"plus",d:"m",s:4,b:"",e:"🛣️",
+  url:"https://www.onlinegames.io/games/2022/unity/highway-traffic/index.html",
+  img:"https://www.onlinegames.io/media/posts/32/responsive/Highway-Traffic-2-xs.jpg",
+  ext:"https://www.onlinegames.io/highway-traffic/"},
+
+{id:123,t:"Crazy Strike Force",      c:"plus",d:"m",s:4,b:"",e:"💥",
+  url:"https://www.onlinegames.io/games/2023/unity/crazy-strike-force/index.html",
+  img:"https://www.onlinegames.io/media/posts/366/responsive/Crazy-Strike-Force-xs.jpg",
+  ext:"https://www.onlinegames.io/crazy-strike-force/"},
+
+{id:124,t:"Burnout City",            c:"plus",d:"m",s:4,b:"",e:"🔥",
+  url:"https://cloud.onlinegames.io/games/2024/unity/burnout-city/index-og.html",
+  img:"https://www.onlinegames.io/media/posts/861/responsive/burnoutcity-xs.jpg",
+  ext:"https://www.onlinegames.io/burnout-city/"},
+
+{id:125,t:"Escape Car",              c:"plus",d:"q",s:4,b:"",e:"🚨",
+  url:"https://cloud.onlinegames.io/games/2025/unity2/escape-car/index-og.html",
+  img:"https://www.onlinegames.io/media/posts/1000/responsive/Escape-Car-xs.jpg",
+  ext:"https://www.onlinegames.io/escape-car/"},
+
+{id:126,t:"Basketball.io",           c:"plus",d:"q",s:4,b:"",e:"🏀",
+  url:"https://www.onlinegames.io/games/2022/unity3/basketball-io/index.html",
+  img:"https://www.onlinegames.io/media/posts/302/responsive/Basketball-io-2-xs.jpg",
+  ext:"https://www.onlinegames.io/basketball-io/"},
+
+{id:127,t:"Fast Food Rush",          c:"plus",d:"m",s:4,b:"new",e:"🍔",
+  url:"https://cloud.onlinegames.io/games/2025/unity/fast-food-rush/index-og.html",
+  img:"https://www.onlinegames.io/media/posts/979/responsive/fast-food-rush-xs.jpg",
+  ext:"https://www.onlinegames.io/fast-food-rush/"},
+
+{id:128,t:"Mob City",                c:"plus",d:"m",s:4,b:"",e:"🔫",
+  url:"https://www.onlinegames.io/games/2021/unity3/mob-city/index.html",
+  img:"https://www.onlinegames.io/media/posts/418/responsive/Mob-City-xs.jpg",
+  ext:"https://www.onlinegames.io/mob-city/"},
+
+{id:129,t:"Backflip Challenge",      c:"plus",d:"q",s:3,b:"",e:"🤸",
+  url:"https://cloud.onlinegames.io/games/2026/unity/backflip-challenge/game.html",
+  img:"https://www.onlinegames.io/media/posts/1203/responsive/backflip-challenge-xs.webp",
+  ext:"https://www.onlinegames.io/backflip-challenge/"},
+
+/* ── Playpager (embed officiel ✅) ── */
+{id:150,t:"Échecs",                  c:"plus",d:"l",s:5,b:"top",e:"♟️",
+  url:"https://playpager.com/embed/chess/index.html",
+  img:"https://playpager.com/app-images/1x1/chess-1x1-300.jpg",
+  ext:"https://playpager.com/chess/"},
+
+{id:151,t:"Dames",                   c:"plus",d:"m",s:4,b:"",e:"🔴",
+  url:"https://playpager.com/embed/checkers/index.html",
+  img:"https://playpager.com/app-images/checkers/Checkers-1x1-300.jpg",
+  ext:"https://playpager.com/checkers/"},
+
+{id:152,t:"Solitaire",               c:"plus",d:"m",s:5,b:"top",e:"🃏",
+  url:"https://playpager.com/embed/solitaire/index.html",
+  img:"https://playpager.com/app-images/scorpion/scorpion-solitaire-300-1x1.jpg",
+  ext:"https://playpager.com/solitaire/"},
+
+{id:153,t:"Sudoku",                  c:"plus",d:"m",s:4,b:"",e:"🔢",
+  url:"https://playpager.com/embed/sudoku/index.html",
+  img:"https://playpager.com/app-images/sudoku/sudoku-300-1x1.jpg",
+  ext:"https://playpager.com/sudoku/"},
+
+{id:154,t:"Word Puzzle",             c:"plus",d:"q",s:4,b:"new",e:"🔤",
+  url:"https://playpager.com/embed/wordpuzzle/index.html",
+  img:"https://playpager.com/app-images/word-puzzle/find-the-word-300.jpg",
+  ext:"https://playpager.com/word-puzzle/"},
+
+{id:155,t:"Falling Cubes",           c:"plus",d:"q",s:3,b:"",e:"🟦",
+  url:"https://playpager.com/embed/cubes/index.html",
+  img:"https://playpager.com/app-images/cubes/Cubes-300-1x1.jpg",
+  ext:"https://playpager.com/cubes/"},
+
+/* ── iDev.Games (embed officiel ✅) ── */
+{id:160,t:"Demon's Cave",            c:"plus",d:"q",s:3,b:"",e:"😈",
+  url:"https://iDev.Games/embed/demon-s-cave",
+  img:"https://idev.games/cachedImages/96/70499.webp",
+  ext:"https://idev.games/game/demon-s-cave"},
+];
+
+/* HELPERS */
+const BL={top:'b-top',hot:'b-hot',new:'b-new',fnaf:'b-fnaf'};
+const BTL={top:'TOP',hot:'HOT',new:'NEW',fnaf:'FNAF'};
+const DL={q:'≤5min',m:'5–20min',l:'20+min'};
+const CL={horreur:'HORROR',runner:'RUNNER',course:'COURSE',action:'ACTION',puzzle:'PUZZLE',idle:'IDLE',classique:'CLASSIC','2p':'2P',io:'.IO',plus:'PLUS'};
+
+function dl(d){return DL[d]||''}
+function bdg(b){if(!b||!BL[b])return '';return`<span class="bd ${BL[b]}">${BTL[b]}</span>`}
+function sts(n){return'★'.repeat(n)+'☆'.repeat(5-n)}
+function psv(){return`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`}
+
+function card(g,big=false){
+  return`<div class="${big?'fbig gc':'gc'}" onclick="og(${g.id})">
+    <div class="gt">
+      <div class="fb">${g.e}</div>
+      <img src="${g.img}" alt="${g.t}" loading="lazy" onerror="this.style.display='none'">
+      <div class="go"><div class="pc">${psv()}</div></div>
+      ${bdg(g.b)}<span class="dc">${dl(g.d)}</span>
+    </div>
+    <div class="gi">
+      <h3>${g.t}</h3>
+      <div class="gm"><span class="tag">${CL[g.c]||g.c}</span><span class="stars">${sts(g.s)}</span></div>
+    </div>
+  </div>`;
+}
+
+const FI=[1,30,43,40,10,50];
+function renderFeat(){
+  const games=FI.map(id=>G.find(g=>g.id===id)).filter(Boolean);
+  const[big,...rest]=games;
+  document.getElementById('featRow').innerHTML=
+    card(big,true)+
+    `<div class="fcol">${rest.slice(0,2).map(g=>card(g)).join('')}</div>`+
+    `<div class="fcol">${rest.slice(2,4).map(g=>card(g)).join('')}</div>`;
+}
+
+let F={cat:'all',dur:'all'};
+const SECS=['horreur','runner','course','action','puzzle','idle','classique','2p','io','plus'];
+
+function renderSections(){
+  const isAll=F.cat==='all'&&F.dur==='all';
+  document.getElementById('featSec').style.display=isAll?'':'none';
+  document.getElementById('searchSec').style.display='none';
+  let total=0;
+  SECS.forEach(cat=>{
+    const sec=document.getElementById('sec-'+cat);
+    const grid=document.getElementById('g-'+cat);
+    const cnt=document.getElementById('cnt-'+cat);
+    if(!sec||!grid)return;
+    if(F.cat!=='all'&&F.cat!==cat){sec.style.display='none';return;}
+    let list=G.filter(g=>g.c===cat);
+    if(F.dur!=='all')list=list.filter(g=>g.d===F.dur);
+    if(!list.length){sec.style.display='none';return;}
+    sec.style.display='';
+    grid.innerHTML=list.map(g=>card(g)).join('');
+    if(cnt)cnt.textContent=list.length+' jeux';
+    total+=list.length;
+  });
+  document.getElementById('gcnt').textContent=total+' jeux';
+}
+
+function sf(type,val,el){
+  el.closest('.fg').querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');F[type]=val;
+  siEl.value='';sdEl.classList.remove('open');renderSections();
+}
+
+const siEl=document.getElementById('si');
+const sdEl=document.getElementById('sdrop');
+siEl.addEventListener('input',()=>{
+  const q=siEl.value.trim().toLowerCase();
+  if(!q){sdEl.classList.remove('open');renderSections();return;}
+  const res=G.filter(g=>g.t.toLowerCase().includes(q)||g.c.toLowerCase().includes(q));
+  sdEl.innerHTML=res.length===0
+    ?`<div class="sd-empty">Aucun résultat</div>`
+    :res.slice(0,10).map(g=>`
+      <div class="sdi" onclick="ps(${g.id})">
+        <img src="${g.img}" alt="${g.t}" loading="lazy" onerror="this.style.opacity=0">
+        <div><div class="sn">${g.t}</div><div class="sm">${g.c} · ${dl(g.d)}</div></div>
+      </div>`).join('');
+  sdEl.classList.add('open');
+});
+function ps(id){sdEl.classList.remove('open');siEl.value='';og(id);}
+document.addEventListener('click',e=>{if(!e.target.closest('.sw'))sdEl.classList.remove('open');});
+
+function og(id){
+  const g=G.find(x=>x.id===id);if(!g)return;
+  document.getElementById('mtitle').textContent=g.t;
+  document.getElementById('mext').href=g.ext;
+  const mt=document.getElementById('mthumb');
+  mt.src=g.img;mt.style.opacity=1;mt.onerror=()=>{mt.style.opacity=0;};
+  document.getElementById('gf').src='';
+  document.getElementById('lsc').classList.remove('gone');
+  document.getElementById('mo').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>{
+    const fr=document.getElementById('gf');
+    fr.src=g.url;
+    fr.onload=()=>document.getElementById('lsc').classList.add('gone');
+  },200);
+}
+function cm(){
+  document.getElementById('mo').classList.remove('open');
+  document.getElementById('gf').src='';
+  document.body.style.overflow='';
+}
+function cmb(e){if(e.target===document.getElementById('mo'))cm();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){cm();sdEl.classList.remove('open');}});
+
+renderFeat();
+renderSections();
+</script>
+
+<script src="reevox-mini-player.js"></script>
+
+
+
+
+
+</body>
+</html>

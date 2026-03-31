@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reevox - Connexion & Abonnement</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #000814, #001f3f);
+            overflow-x: hidden;
+        }
+        .premium-glow { box-shadow: 0 0 30px rgba(251, 191, 36, 0.3); }
+        .stripe-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99,91,255,0.15);
+            border: 1px solid rgba(99,91,255,0.4);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11px;
+            color: #a5b4fc;
+            letter-spacing: 0.05em;
+        }
+        .plan-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+        .plan-card:hover { transform: translateY(-4px); }
+        .step-indicator {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-active  { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; }
+        .step-done    { background: rgba(34,197,94,0.3); border: 1px solid rgb(34,197,94); color: rgb(34,197,94); }
+        .step-pending { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.4); }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+
+
+    <!-- HEADER -->
+    <header class="backdrop-blur-xl bg-black/70 border-b border-yellow-500/20 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <img src="IMG_7957.png" class="h-20" alt="Reevox"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span style="display:none" class="text-2xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">REEVOX</span>
+            <span class="stripe-badge">🔒 Paiement sécurisé Stripe</span>
+        </div>
+    </header>
+
+
+    <!-- STEPS BAR -->
+    <div class="max-w-2xl mx-auto px-6 pt-8 pb-2">
+        <div class="flex items-center justify-center gap-3">
+            <div class="flex items-center gap-2">
+                <div class="step-indicator step-active" id="step1-dot">1</div>
+                <span class="text-sm font-bold text-yellow-400" id="step1-label">Compte</span>
+            </div>
+            <div class="h-px w-10 bg-white/20"></div>
+            <div class="flex items-center gap-2">
+                <div class="step-indicator step-pending" id="step2-dot">2</div>
+                <span class="text-sm text-white/40" id="step2-label">Abonnement</span>
+            </div>
+            <div class="h-px w-10 bg-white/20"></div>
+            <div class="flex items-center gap-2">
+                <div class="step-indicator step-pending" id="step3-dot">3</div>
+                <span class="text-sm text-white/40" id="step3-label">Paiement</span>
+            </div>
+        </div>
+    </div>
+
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+
+
+        <!-- ÉTAPE 1 : CONNEXION / INSCRIPTION -->
+<div id="authSection">
+    <div class="text-center mb-8">
+        <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 bg-clip-text text-transparent">
+            Bienvenue sur Reevox
+        </h1>
+        <p class="text-xl text-gray-300">Connecte-toi ou crée ton compte</p>
+    </div>
+
+    <div class="max-w-md mx-auto">
+        <div class="backdrop-blur-xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-3xl p-8 shadow-2xl">
+            <div class="flex gap-2 mb-6">
+                <button onclick="showAuthTab('login')" id="loginTab"
+                    class="flex-1 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 font-bold transition-all">
+                    Connexion
+                </button>
+                <button onclick="showAuthTab('register')" id="registerTab"
+                    class="flex-1 py-2 rounded-lg bg-white/5 border border-white/20 hover:bg-white/10 transition-all">
+                    Inscription
+                </button>
+            </div>
+
+            <!-- LOGIN -->
+            <div id="loginForm">
+                <h3 class="text-xl font-bold text-center text-yellow-400 mb-6">🔐 Connexion</h3>
+                <input type="email" id="loginEmail" placeholder="Email"
+                    class="w-full bg-black/30 border border-yellow-500/30 rounded-lg px-4 py-3 mb-4 focus:border-yellow-500 focus:outline-none">
+                <input type="password" id="loginPassword" placeholder="Mot de passe"
+                    class="w-full bg-black/30 border border-yellow-500/30 rounded-lg px-4 py-3 mb-6 focus:border-yellow-500 focus:outline-none">
+                <button onclick="login()"
+                    class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-yellow-500/50 transition-all">
+                    SE CONNECTER
+                </button>
+            </div>
+
+            <!-- REGISTER -->
+            <div id="registerForm" class="hidden">
+                <h3 class="text-xl font-bold text-center text-yellow-400 mb-6">✨ Inscription</h3>
+                <input type="text" id="registerUsername" placeholder="Pseudo (min 3 caractères)"
+                    class="w-full bg-black/30 border border-yellow-500/30 rounded-lg px-4 py-3 mb-3 focus:border-yellow-500 focus:outline-none">
+                <input type="email" id="registerEmail" placeholder="Email"
+                    class="w-full bg-black/30 border border-yellow-500/30 rounded-lg px-4 py-3 mb-3 focus:border-yellow-500 focus:outline-none">
+                <input type="password" id="registerPassword" placeholder="Mot de passe (min 4 caractères)"
+                    class="w-full bg-black/30 border border-yellow-500/30 rounded-lg px-4 py-3 mb-3 focus:border-yellow-500 focus:outline-none">
+                <input type="url" id="registerPhoto" placeholder="Photo de profil (URL, optionnel)"
+                    class="w-full bg-black/30 border border-yellow-500/30 rounded-lg px-4 py-3 mb-6 focus:border-yellow-500 focus:outline-none">
+                <button onclick="register()"
+                    class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-yellow-500/50 transition-all">
+                    CRÉER MON COMPTE
+                </button>
+            </div>
+        </div>
+
+        <!-- SÉPARATEUR OU -->
+        <div class="flex items-center gap-4 my-5">
+            <div class="flex-1 h-px bg-white/20"></div>
+            <span class="text-gray-400 font-semibold text-sm">OU</span>
+            <div class="flex-1 h-px bg-white/20"></div>
+        </div>
+
+        <!-- BOUTON JOUER GRATUITEMENT -->
+        <a href="reevox-games (12).html"
+            class="block w-full text-center bg-gradient-to-r from-green-500 to-emerald-600 py-3 rounded-xl font-bold text-white hover:shadow-lg hover:shadow-green-500/50 transition-all">
+            🎮 JOUER GRATUITEMENT
+        </a>
+
+    </div>
+</div>
+
+        <!-- ÉTAPE 2 : CHOIX DE L'ABONNEMENT -->
+        <div id="pricingSection" class="hidden">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 bg-clip-text text-transparent">
+                    ⭐ Choisis ton abonnement
+                </h1>
+                <p class="text-xl text-gray-300">Pour accéder à Reevox, sélectionne une formule</p>
+            </div>
+
+
+            <div class="max-w-md mx-auto mb-8">
+                <div class="backdrop-blur-xl bg-black/30 border border-cyan-500/30 rounded-xl p-4 flex items-center gap-4">
+                    <img id="userPhotoPreview" src="" class="w-16 h-16 rounded-full border-2 border-yellow-500 object-cover">
+                    <div>
+                        <p class="font-bold text-yellow-400 text-lg" id="userNamePreview"></p>
+                        <p class="text-sm text-gray-400" id="userEmailPreview"></p>
+                    </div>
+                    <span class="ml-auto text-xs bg-green-500/20 border border-green-500/40 text-green-400 px-3 py-1 rounded-full">✓ Connecté</span>
+                </div>
+            </div>
+
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+
+
+                <!-- MENSUEL -->
+                <div class="plan-card backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-2 border-cyan-500/30 rounded-3xl p-8 hover:border-cyan-500/60">
+                    <div class="text-center">
+                        <p class="text-cyan-400 font-bold text-sm mb-2 tracking-widest">MENSUEL</p>
+                        <div class="mb-6">
+                            <span class="text-5xl font-bold text-white">2€</span>
+                            <span class="text-gray-400">/mois</span>
+                        </div>
+                        <ul class="text-left space-y-3 mb-8 text-sm">
+                            <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span><span>Tous les jeux illimités</span></li>
+                            <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span><span>Scores certifiés</span></li>
+                            <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span><span>Chat et messagerie</span></li>
+                            <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span><span>Classement mondial</span></li>
+                            <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span><span>Mode multijoueur</span></li>
+                        </ul>
+                        <button onclick="goToPayment('monthly')"
+                            class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
+                            Choisir Mensuel
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- ANNUEL -->
+                <div class="plan-card backdrop-blur-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-4 border-yellow-500 rounded-3xl p-8 premium-glow relative">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-600 to-orange-600 px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap">
+                        🏆 MEILLEURE OFFRE
+                    </div>
+                    <div class="text-center">
+                        <p class="text-yellow-400 font-bold text-sm mb-2 tracking-widest">ANNUEL</p>
+                        <div class="mb-2">
+                            <span class="text-5xl font-bold text-white">18€</span>
+                            <span class="text-gray-400">/an</span>
+                        </div>
+                        <p class="text-sm text-green-400 font-bold mb-6">💰 Économise 6€ par an !</p>
+                        <ul class="text-left space-y-3 mb-8 text-sm">
+                            <li class="flex items-center gap-2"><span class="text-yellow-400">✓</span><span>Tous les jeux illimités</span></li>
+                            <li class="flex items-center gap-2"><span class="text-yellow-400">✓</span><span>Scores certifiés</span></li>
+                            <li class="flex items-center gap-2"><span class="text-yellow-400">✓</span><span>Chat et messagerie</span></li>
+                            <li class="flex items-center gap-2"><span class="text-yellow-400">✓</span><span>Classement mondial</span></li>
+                            <li class="flex items-center gap-2"><span class="text-yellow-400">✓</span><span>Mode multijoueur</span></li>
+                            <li class="flex items-center gap-2"><span class="text-yellow-400">✓</span><span><strong>Badge Premium OR</strong></span></li>
+                            <li class="flex items-center gap-2"><span class="text-yellow-400">✓</span><span><strong>Accès anticipé nouveaux jeux</strong></span></li>
+                        </ul>
+                        <button onclick="goToPayment('yearly')"
+                            class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-yellow-500/50 transition-all">
+                            Choisir Annuel ⭐
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <p class="text-center text-xs text-gray-500 mt-8">🔒 Paiement 100% sécurisé par Stripe · Résiliation à tout moment</p>
+        </div>
+
+
+        <!-- ÉTAPE 3 : REDIRECTION STRIPE -->
+        <div id="redirectSection" class="hidden max-w-lg mx-auto text-center">
+            <div class="backdrop-blur-xl bg-black/50 border-2 border-yellow-500/30 rounded-3xl p-12">
+                <div class="text-6xl mb-6">💳</div>
+                <h2 class="text-2xl font-bold text-yellow-400 mb-4">Redirection vers Stripe...</h2>
+                <p class="text-gray-400 mb-8">Tu vas être redirigé vers la page de paiement sécurisée.</p>
+                <div class="flex items-center justify-center gap-3 mb-8">
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full animate-bounce" style="animation-delay:0s"></div>
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full animate-bounce" style="animation-delay:0.4s"></div>
+                </div>
+                <div class="flex items-center justify-center gap-4 flex-wrap">
+                    <span class="text-xs text-gray-500">🔒 SSL sécurisé</span>
+                    <span class="text-xs text-gray-500">💳 Visa · Mastercard · CB</span>
+                    <span class="text-xs text-gray-500">↩️ Résiliation à tout moment</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ÉTAPE 4 : SUCCÈS -->
+        <div id="successSection" class="hidden text-center">
+            <div class="backdrop-blur-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-4 border-green-500 rounded-3xl p-12 max-w-2xl mx-auto premium-glow">
+                <div class="text-8xl mb-6">🎉</div>
+                <h1 class="text-4xl font-bold text-green-400 mb-4">Paiement validé !</h1>
+                <p class="text-xl text-gray-300 mb-2">Bienvenue sur Reevox Premium</p>
+                <p class="text-sm text-gray-400 mb-8">Ton abonnement est actif • Redirection dans <span id="countdown" class="text-yellow-400 font-bold">3</span> secondes...</p>
+                <div class="bg-black/30 rounded-xl p-6 mb-8">
+                    <div class="grid md:grid-cols-2 gap-4 text-left">
+                        <div>
+                            <p class="text-sm text-gray-400">👤 Pseudo</p>
+                            <p class="text-lg font-bold text-yellow-400" id="finalUsername"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">📧 Email</p>
+                            <p class="text-lg font-bold text-yellow-400" id="finalEmail"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">📅 Expiration</p>
+                            <p class="text-lg font-bold text-red-400" id="finalExpiry"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">💎 Statut</p>
+                            <p class="text-lg font-bold text-green-400">⭐ ACTIF</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="window.location.href='index.html'"
+                    class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 py-4 rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
+                    🎮 Accéder à Reevox maintenant
+                </button>
+            </div>
+        </div>
+
+
+    </main>
+
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, push } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0kJQP62qnj1K_duIgLXMqtkozfs9PifA",
+            authDomain: "reevox-gamehub.firebaseapp.com",
+            databaseURL: "https://reevox-gamehub-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "reevox-gamehub",
+            storageBucket: "reevox-gamehub.firebasestorage.app",
+            messagingSenderId: "977802762477",
+            appId: "1:977802762477:web:edac4a5eb4cd92fa6694e4"
+        };
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+
+        // ── URL de ton site Firebase ──────────────────────
+        const SITE_URL = 'https://reevox-gamehub.web.app';
+
+
+        // ── Tes liens Stripe Payment Links ───────────────
+        const STRIPE_LINKS = {
+            monthly: 'https://buy.stripe.com/test_aFa00jbV1egF6Tx6jVcAo00',
+            yearly:  'https://buy.stripe.com/test_fZu6oHgbhb4t0v96jVcAo01'
+        };
+
+
+        let currentUserData = null;
+
+
+        // ── Déjà abonné → redirection directe ────────────
+        const savedUser   = localStorage.getItem('reevox_user');
+        const savedExpiry = localStorage.getItem('reevox_subscription_expiry');
+        if (savedUser && savedExpiry && parseInt(savedExpiry) > Date.now()) {
+            window.location.href = 'index.html';
+        }
+
+
+        // ── Retour après paiement Stripe (?success=true) ─
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            activateAfterPayment();
+        }
+
+
+        async function activateAfterPayment() {
+            const pendingUser = JSON.parse(localStorage.getItem('reevox_pending_user') || 'null');
+            const pendingPlan = localStorage.getItem('reevox_pending_plan') || 'monthly';
+            if (!pendingUser || !pendingUser.key) { window.location.href = 'index.html'; return; }
+
+
+            const now        = Date.now();
+            const duration   = pendingPlan === 'monthly' ? 30 : 365;
+            const expiryDate = now + (duration * 24 * 60 * 60 * 1000);
+
+
+            try {
+                await set(ref(database, `users/${pendingUser.key}/subscription`), {
+                    status: 'active',
+                    plan: pendingPlan,
+                    price: pendingPlan === 'monthly' ? 5 : 50,
+                    paymentMethod: 'stripe',
+                    startDate: now,
+                    expiryDate: expiryDate,
+                    autoRenew: true
+                });
+                localStorage.setItem('reevox_user', pendingUser.username);
+                localStorage.setItem('reevox_subscription_expiry', expiryDate);
+                localStorage.removeItem('reevox_pending_user');
+                localStorage.removeItem('reevox_pending_plan');
+                showSuccess(pendingUser, expiryDate);
+            } catch (e) { alert('Erreur activation: ' + e.message); }
+        }
+
+
+        // ── Tabs ──────────────────────────────────────────
+        window.showAuthTab = function(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+            document.getElementById('registerForm').classList.toggle('hidden', isLogin);
+            document.getElementById('loginTab').className = isLogin
+                ? 'flex-1 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 font-bold transition-all'
+                : 'flex-1 py-2 rounded-lg bg-white/5 border border-white/20 hover:bg-white/10 transition-all';
+            document.getElementById('registerTab').className = !isLogin
+                ? 'flex-1 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 font-bold transition-all'
+                : 'flex-1 py-2 rounded-lg bg-white/5 border border-white/20 hover:bg-white/10 transition-all';
+        };
+
+
+        // ── Connexion ─────────────────────────────────────
+        window.login = async function() {
+            const email    = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!email || !password) { alert('⚠️ Remplis tous les champs'); return; }
+            try {
+                const snapshot = await get(ref(database, 'users'));
+                let found = false;
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (user.email === email && user.password === password) {
+                        found = true;
+                        currentUserData = { ...user, key: child.key };
+                        const sub = user.subscription;
+                        if (sub && sub.status === 'active' && sub.expiryDate > Date.now()) {
+                            localStorage.setItem('reevox_user', user.username);
+                            localStorage.setItem('reevox_subscription_expiry', sub.expiryDate);
+                            window.location.href = 'index.html';
+                        } else {
+                            showPricing();
+                        }
+                    }
+                });
+                if (!found) alert('❌ Email ou mot de passe incorrect');
+            } catch (e) { alert('❌ Erreur: ' + e.message); }
+        };
+
+
+        // ── Inscription ───────────────────────────────────
+        window.register = async function() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const email    = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const photo    = document.getElementById('registerPhoto').value.trim() ||
+                'https://via.placeholder.com/150/f59e0b/ffffff?text=' + encodeURIComponent((username.charAt(0) || 'U').toUpperCase());
+
+
+            if (!username || !email || !password) { alert('⚠️ Tous les champs sont obligatoires'); return; }
+            if (username.length < 3)              { alert('⚠️ Pseudo minimum 3 caractères'); return; }
+            if (password.length < 4)              { alert('⚠️ Mot de passe minimum 4 caractères'); return; }
+            if (!email.includes('@'))             { alert('⚠️ Email invalide'); return; }
+
+
+            try {
+                const snapshot = await get(ref(database, 'users'));
+                let exists = false;
+                snapshot.forEach((child) => {
+                    const u = child.val();
+                    if (u.username && u.username.toLowerCase() === username.toLowerCase()) exists = true;
+                    if (u.email === email) exists = true;
+                });
+                if (exists) { alert('❌ Ce pseudo ou email est déjà pris'); return; }
+
+
+                const newRef   = push(ref(database, 'users'));
+                const userData = { username, email, password, photo, joinDate: Date.now(), scores: {}, totalScore: 0 };
+                await set(newRef, userData);
+                currentUserData = { ...userData, key: newRef.key };
+                showPricing();
+            } catch (e) { alert('❌ Erreur: ' + e.message); }
+        };
+
+
+        // ── Afficher les prix ─────────────────────────────
+        function showPricing() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('pricingSection').classList.remove('hidden');
+            document.getElementById('userPhotoPreview').src = currentUserData.photo;
+            document.getElementById('userNamePreview').textContent  = currentUserData.username;
+            document.getElementById('userEmailPreview').textContent = currentUserData.email;
+            localStorage.setItem('reevox_pending_user', JSON.stringify(currentUserData));
+            updateStep(2);
+        }
+
+
+        // ── Redirection vers Stripe ───────────────────────
+        window.goToPayment = function(plan) {
+            localStorage.setItem('reevox_pending_plan', plan);
+            document.getElementById('pricingSection').classList.add('hidden');
+            document.getElementById('redirectSection').classList.remove('hidden');
+            updateStep(3);
+
+
+            // URL de retour vers ton site après le paiement
+            const returnUrl = SITE_URL + '/subscribe.html?success=true';
+            const stripeUrl = STRIPE_LINKS[plan] + '?return_url=' + encodeURIComponent(returnUrl);
+
+
+            setTimeout(() => {
+                window.location.href = stripeUrl;
+            }, 1500);
+        };
+
+
+        // ── Afficher succès ───────────────────────────────
+        function showSuccess(user, expiryDate) {
+            ['authSection','pricingSection','redirectSection'].forEach(id =>
+                document.getElementById(id).classList.add('hidden'));
+            document.getElementById('successSection').classList.remove('hidden');
+            document.getElementById('finalUsername').textContent = user.username;
+            document.getElementById('finalEmail').textContent    = user.email;
+            document.getElementById('finalExpiry').textContent   = new Date(expiryDate).toLocaleDateString('fr-FR', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+            let count = 3;
+            const timer = setInterval(() => {
+                count--;
+                document.getElementById('countdown').textContent = count;
+                if (count === 0) { clearInterval(timer); window.location.href = 'index.html'; }
+            }, 1000);
+        }
+
+
+        // ── Étapes ────────────────────────────────────────
+        function updateStep(active) {
+            for (let i = 1; i <= 3; i++) {
+                const dot   = document.getElementById(`step${i}-dot`);
+                const label = document.getElementById(`step${i}-label`);
+                if (i < active) {
+                    dot.className = 'step-indicator step-done'; dot.textContent = '✓';
+                    label.className = 'text-sm text-green-400';
+                } else if (i === active) {
+                    dot.className = 'step-indicator step-active'; dot.textContent = i;
+                    label.className = 'text-sm font-bold text-yellow-400';
+                } else {
+                    dot.className = 'step-indicator step-pending'; dot.textContent = i;
+                    label.className = 'text-sm text-white/40';
+                }
+            }
+        }
+    </script>
+
+
+</body>
+</html>
