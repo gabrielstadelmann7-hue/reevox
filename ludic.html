@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reevox Learn - Apprendre en jouant</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #000814, #001845); }
+        h1, h2, h3, .orbitron { font-family: 'Orbitron', sans-serif; }
+        .game-card { transition: all 0.3s; cursor: pointer; }
+        .game-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(59,130,246,0.3); }
+        .answer-btn { transition: all 0.2s; }
+        .answer-btn:hover { transform: scale(1.03); }
+        .answer-btn.correct { background: linear-gradient(135deg, #16a34a, #15803d) !important; border-color: #22c55e !important; }
+        .answer-btn.wrong   { background: linear-gradient(135deg, #dc2626, #b91c1c) !important; border-color: #ef4444 !important; }
+        .progress-bar { transition: width 0.5s ease; }
+        @keyframes popIn  { 0%{transform:scale(0);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .pop-in  { animation: popIn  0.4s ease forwards; }
+        .fade-up { animation: fadeUp 0.5s ease forwards; }
+        .timer-ring { transition: stroke-dashoffset 1s linear; }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+
+    <!-- HEADER -->
+    <header class="backdrop-blur-xl bg-black/70 border-b border-blue-500/20 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="backdrop-blur-lg bg-white/5 border border-blue-400/30 px-4 py-2 rounded-xl text-blue-400 hover:bg-white/10 transition-all">← Retour</a>
+                <img src="IMG_7957.png" class="h-10" alt="Reevox" onerror="this.style.display='none'">
+                <span class="orbitron text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">LEARN</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="userDisplay" class="text-blue-400 font-semibold"></span>
+                <span id="totalScore" class="bg-yellow-500/20 border border-yellow-500 px-4 py-2 rounded-full text-yellow-400 font-bold text-sm">⭐ 0 pts</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- PAGE PRINCIPALE -->
+    <div id="mainPage">
+        <main class="max-w-7xl mx-auto px-6 py-12">
+            <div class="text-center mb-12 fade-up">
+                <h1 class="orbitron text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">🎓 Reevox Learn</h1>
+                <p class="text-xl text-gray-300">Teste tes connaissances dans des dizaines de catégories</p>
+            </div>
+
+            <!-- SÉLECTION ÂGE -->
+            <div class="max-w-4xl mx-auto mb-10">
+                <div class="backdrop-blur-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-3xl p-8">
+                    <h2 class="orbitron text-xl font-bold text-blue-400 mb-6 text-center">👶 Sélectionne ton niveau</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button onclick="selectAge('3-5')"   class="age-btn bg-pink-500/20   border-2 border-pink-500/50   hover:bg-pink-500/40   py-4 rounded-xl font-bold text-lg transition-all">3-5 ans</button>
+                        <button onclick="selectAge('6-8')"   class="age-btn bg-orange-500/20 border-2 border-orange-500/50 hover:bg-orange-500/40 py-4 rounded-xl font-bold text-lg transition-all">6-8 ans</button>
+                        <button onclick="selectAge('9-12')"  class="age-btn bg-blue-500/20   border-2 border-blue-500/50   hover:bg-blue-500/40   py-4 rounded-xl font-bold text-lg transition-all">9-12 ans</button>
+                        <button onclick="selectAge('13-18')" class="age-btn bg-purple-500/20 border-2 border-purple-500/50 hover:bg-purple-500/40 py-4 rounded-xl font-bold text-lg transition-all">13-18 ans</button>
+                    </div>
+                    <p id="ageDisplay" class="text-center text-gray-400 text-sm mt-4">Choisis ton niveau pour voir les jeux adaptés</p>
+                </div>
+            </div>
+
+            <!-- FILTRES CATÉGORIES -->
+            <div class="mb-8 flex flex-wrap gap-3 justify-center">
+                <button onclick="filterCat('all')"      class="cat-btn active-cat px-5 py-2 rounded-full font-semibold text-sm transition-all border">Tous</button>
+                <button onclick="filterCat('math')"     class="cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10">🔢 Maths</button>
+                <button onclick="filterCat('language')" class="cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10">📚 Français</button>
+                <button onclick="filterCat('science')"  class="cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10">🔬 Sciences</button>
+                <button onclick="filterCat('history')"  class="cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10">🏛️ Histoire</button>
+                <button onclick="filterCat('geo')"      class="cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10">🌍 Géo</button>
+                <button onclick="filterCat('logic')"    class="cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10">🧩 Logique</button>
+                <button onclick="filterCat('memory')"   class="cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10">🧠 Mémoire</button>
+            </div>
+
+            <div id="gamesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+            <div id="noGamesMsg" class="text-center py-20 text-gray-400 text-xl">Choisis ton niveau pour voir les jeux ! 🎮</div>
+        </main>
+    </div>
+
+    <!-- PAGE DE JEU -->
+    <div id="gamePage" class="hidden">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <!-- Top bar -->
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="exitGame()" class="bg-white/10 border border-white/20 px-4 py-2 rounded-xl hover:bg-white/20 transition-all">← Quitter</button>
+                <div id="gameNameDisplay" class="orbitron text-xl font-bold text-blue-400"></div>
+                <div class="flex items-center gap-3">
+                    <span class="text-yellow-400 font-bold">Score: <span id="liveScore">0</span></span>
+                    <span class="bg-blue-500/20 border border-blue-500 px-3 py-1 rounded-full text-sm"><span id="qNum">1</span>/<span id="qTotal">10</span></span>
+                </div>
+            </div>
+
+            <!-- Barre de progression -->
+            <div class="bg-white/10 rounded-full h-2 mb-6 overflow-hidden">
+                <div id="progressBar" class="progress-bar h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" style="width:0%"></div>
+            </div>
+
+            <!-- Carte de question -->
+            <div id="questionCard" class="backdrop-blur-xl bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-3xl p-8 mb-6 fade-up">
+                <!-- Contenu injecté ici -->
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedback" class="hidden text-center py-4 rounded-2xl mb-4 text-xl font-bold"></div>
+
+            <!-- Résultats finaux -->
+            <div id="resultsPanel" class="hidden backdrop-blur-xl bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-3xl p-8 text-center pop-in">
+                <div class="text-7xl mb-4" id="resultEmoji">🎉</div>
+                <h3 class="orbitron text-3xl font-bold mb-2" id="resultTitle"></h3>
+                <p class="text-gray-300 mb-6" id="resultSubtitle"></p>
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white/10 rounded-xl p-4"><div class="text-3xl font-bold text-yellow-400" id="finalScore">0</div><div class="text-xs text-gray-400 mt-1">Points gagnés</div></div>
+                    <div class="bg-white/10 rounded-xl p-4"><div class="text-3xl font-bold text-green-400" id="correctCount">0</div><div class="text-xs text-gray-400 mt-1">Bonnes réponses</div></div>
+                    <div class="bg-white/10 rounded-xl p-4"><div class="text-3xl font-bold text-blue-400" id="accuracyPct">0%</div><div class="text-xs text-gray-400 mt-1">Précision</div></div>
+                </div>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="restartCurrentGame()" class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/50 transition-all">🔄 Rejouer</button>
+                    <button onclick="exitGame()" class="bg-white/10 border border-white/20 px-8 py-3 rounded-xl font-bold hover:bg-white/20 transition-all">← Retour</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JEUX DE MÉMOIRE (canvas) -->
+    <div id="memoryPage" class="hidden">
+        <div class="max-w-5xl mx-auto px-6 py-8">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="exitGame()" class="bg-white/10 border border-white/20 px-4 py-2 rounded-xl hover:bg-white/20 transition-all">← Quitter</button>
+                <div id="memGameName" class="orbitron text-xl font-bold text-yellow-400"></div>
+                <span class="text-yellow-400 font-bold">Score: <span id="memScore">0</span></span>
+            </div>
+            <div id="memoryContainer"></div>
+        </div>
+    </div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// BASE DE DONNÉES DE QUESTIONS
+// ════════════════════════════════════════════════════════════
+
+const QUESTION_BANKS = {
+
+// ─────────────────────────────────────────────
+// 3-5 ANS
+// ─────────────────────────────────────────────
+'math-3-5': [
+    {q:"Combien font 1 + 1 ?", a:["2","3","4","1"], c:0},
+    {q:"Combien de pattes a un chien ?", a:["4","2","6","8"], c:0},
+    {q:"Combien font 2 + 2 ?", a:["4","3","5","6"], c:0},
+    {q:"Combien de doigts as-tu sur une main ?", a:["5","4","6","3"], c:0},
+    {q:"Quel nombre vient après 3 ?", a:["4","5","2","6"], c:0},
+    {q:"Combien font 3 + 1 ?", a:["4","3","5","2"], c:0},
+    {q:"Quel nombre vient avant 5 ?", a:["4","3","6","5"], c:0},
+    {q:"Combien font 1 + 3 ?", a:["4","2","5","3"], c:0},
+    {q:"Combien y a-t-il de jours dans une semaine ?", a:["7","5","6","8"], c:0},
+    {q:"Combien font 2 + 3 ?", a:["5","4","6","3"], c:0},
+    {q:"Quel est le plus grand : 3 ou 7 ?", a:["7","3","Égaux","5"], c:0},
+    {q:"Combien de mois dans une année ?", a:["12","10","6","8"], c:0},
+],
+'language-3-5': [
+    {q:"Quelle lettre est la première de l'alphabet ?", a:["A","B","C","D"], c:0},
+    {q:"Quelle lettre vient après A ?", a:["B","C","D","E"], c:0},
+    {q:"Quel animal dit Miaou ?", a:["Chat","Chien","Vache","Coq"], c:0},
+    {q:"Quel animal dit Meuh ?", a:["Vache","Cheval","Mouton","Cochon"], c:0},
+    {q:"Comment s'appelle la maison d'un chien ?", a:["Niche","Terrier","Tanière","Grotte"], c:0},
+    {q:"Combien de syllabes dans 'ma-man' ?", a:["2","1","3","4"], c:0},
+    {q:"Quel mot rime avec 'chat' ?", a:["Rat","Chien","Lion","Ours"], c:0},
+    {q:"Quelle lettre est la dernière de l'alphabet ?", a:["Z","Y","X","W"], c:0},
+    {q:"Comment dit-on 'bonjour' quand on part ?", a:["Au revoir","Bonsoir","Merci","S'il vous plaît"], c:0},
+    {q:"Quel est le contraire de grand ?", a:["Petit","Gros","Vieux","Rapide"], c:0},
+],
+'science-3-5': [
+    {q:"De quelle couleur sont les feuilles en été ?", a:["Vertes","Jaunes","Rouges","Marron"], c:0},
+    {q:"D'où vient le lait ?", a:["De la vache","Du cochon","Du poulet","Du mouton"], c:0},
+    {q:"Comment s'appelle l'eau qui tombe du ciel ?", a:["Pluie","Neige","Grêle","Rosée"], c:0},
+    {q:"Qu'est-ce que les plantes ont besoin pour vivre ?", a:["Soleil et eau","Froid","Sable","Vent"], c:0},
+    {q:"Quel astre brille le jour ?", a:["Le Soleil","La Lune","Les étoiles","Une planète"], c:0},
+    {q:"Comment appelle-t-on le bébé du chat ?", a:["Chaton","Chiot","Poussin","Veau"], c:0},
+    {q:"De quelle couleur est l'herbe ?", a:["Verte","Bleue","Rouge","Jaune"], c:0},
+    {q:"Quel animal a des plumes ?", a:["L'oiseau","Le poisson","Le lapin","Le cheval"], c:0},
+    {q:"Où vit un poisson ?", a:["Dans l'eau","Dans les arbres","Dans le sol","Dans le désert"], c:0},
+    {q:"Combien de saisons y a-t-il ?", a:["4","2","3","6"], c:0},
+],
+
+// ─────────────────────────────────────────────
+// 6-8 ANS
+// ─────────────────────────────────────────────
+'math-6-8': [
+    {q:"Combien font 7 × 8 ?", a:["56","54","63","48"], c:0},
+    {q:"Combien font 6 × 9 ?", a:["54","52","63","45"], c:0},
+    {q:"Combien font 12 + 25 ?", a:["37","38","36","35"], c:0},
+    {q:"Combien font 45 - 18 ?", a:["27","28","26","25"], c:0},
+    {q:"Combien font 4 × 7 ?", a:["28","27","32","21"], c:0},
+    {q:"Quel est le double de 15 ?", a:["30","25","20","35"], c:0},
+    {q:"Combien font 100 - 37 ?", a:["63","73","67","53"], c:0},
+    {q:"Combien font 8 × 6 ?", a:["48","42","54","56"], c:0},
+    {q:"Quel est le tiers de 12 ?", a:["4","3","6","2"], c:0},
+    {q:"Combien font 25 + 48 ?", a:["73","72","74","71"], c:0},
+    {q:"Combien font 9 × 7 ?", a:["63","54","72","56"], c:0},
+    {q:"Combien font 80 ÷ 4 ?", a:["20","25","10","40"], c:0},
+    {q:"Quel est le double de 24 ?", a:["48","42","36","50"], c:0},
+    {q:"Combien font 3 × 3 × 3 ?", a:["27","18","9","24"], c:0},
+    {q:"Combien font 150 - 75 ?", a:["75","80","70","65"], c:0},
+],
+'language-6-8': [
+    {q:"Quel est le féminin de 'boulanger' ?", a:["Boulangère","Boulangeuse","Boulangeresse","Boulangette"], c:0},
+    {q:"Quel est le pluriel de 'cheval' ?", a:["Chevaux","Chevals","Chevales","Chevauxs"], c:0},
+    {q:"Quel est le contraire de 'rapide' ?", a:["Lent","Vif","Fort","Grand"], c:0},
+    {q:"Quelle est la nature du mot 'courir' ?", a:["Verbe","Nom","Adjectif","Adverbe"], c:0},
+    {q:"Quel mot est un adjectif ?", a:["Beau","Courir","Maison","Vite"], c:0},
+    {q:"Quel est le pluriel de 'œil' ?", a:["Yeux","Œils","Œiles","Yyeux"], c:0},
+    {q:"Comment conjugue-t-on 'être' au présent : Je ... ?", a:["suis","es","est","êtes"], c:0},
+    {q:"Quel est le synonyme de 'content' ?", a:["Heureux","Triste","Fatigué","Fâché"], c:0},
+    {q:"Quel est le féminin de 'acteur' ?", a:["Actrice","Acteuse","Acteure","Actresse"], c:0},
+    {q:"Combien de syllabes dans 'biblio-thèque' ?", a:["4","3","5","2"], c:0},
+    {q:"Quel est le contraire de 'allumer' ?", a:["Éteindre","Fermer","Cacher","Ouvrir"], c:0},
+    {q:"Quel est le pluriel de 'œuf' ?", a:["Œufs","Œuves","Œufes","Œuffe"], c:0},
+],
+'science-6-8': [
+    {q:"Combien de pattes a une araignée ?", a:["8","6","10","4"], c:0},
+    {q:"Quelle planète est la plus grande du système solaire ?", a:["Jupiter","Saturne","Uranus","Neptune"], c:0},
+    {q:"Qu'est-ce que les plantes produisent grâce à la photosynthèse ?", a:["Oxygène","CO2","Azote","Hydrogène"], c:0},
+    {q:"Quel est l'animal terrestre le plus rapide ?", a:["Guépard","Lion","Cheval","Autruche"], c:0},
+    {q:"De quoi est composée l'eau ?", a:["H₂O","CO₂","NaCl","O₂"], c:0},
+    {q:"Quelle est la planète la plus proche du Soleil ?", a:["Mercure","Vénus","Terre","Mars"], c:0},
+    {q:"Comment appelle-t-on le processus par lequel les plantes fabriquent leur nourriture ?", a:["Photosynthèse","Respiration","Digestion","Germination"], c:0},
+    {q:"Quel est le plus grand mammifère du monde ?", a:["Baleine bleue","Éléphant","Girafe","Hippopotame"], c:0},
+    {q:"Combien d'os y a-t-il dans le corps humain adulte ?", a:["206","186","256","226"], c:0},
+    {q:"Quelle force nous maintient sur Terre ?", a:["La gravité","Le magnétisme","L'électricité","Le vent"], c:0},
+    {q:"À quelle température l'eau bout-elle (au niveau de la mer) ?", a:["100°C","90°C","110°C","80°C"], c:0},
+    {q:"Quel gaz respirons-nous principalement ?", a:["Oxygène","Azote","CO₂","Argon"], c:0},
+],
+
+// ─────────────────────────────────────────────
+// 9-12 ANS
+// ─────────────────────────────────────────────
+'math-9-12': [
+    {q:"Combien font 15² (15 au carré) ?", a:["225","215","235","205"], c:0},
+    {q:"Quel est le PGCD de 12 et 18 ?", a:["6","3","9","12"], c:0},
+    {q:"Combien font 2/3 + 1/4 ?", a:["11/12","3/7","3/12","5/7"], c:0},
+    {q:"Si x = 5, combien fait 3x + 2 ?", a:["17","15","20","12"], c:0},
+    {q:"Quel est le périmètre d'un carré de côté 7 cm ?", a:["28 cm","21 cm","14 cm","49 cm"], c:0},
+    {q:"Combien font 3/4 × 8 ?", a:["6","4","8","3"], c:0},
+    {q:"Résous : 2x = 14, x = ?", a:["7","8","6","12"], c:0},
+    {q:"Quel est l'aire d'un rectangle de 6 cm × 4 cm ?", a:["24 cm²","20 cm²","12 cm²","48 cm²"], c:0},
+    {q:"Combien de faces a un cube ?", a:["6","8","4","12"], c:0},
+    {q:"Quel est 25% de 80 ?", a:["20","25","15","30"], c:0},
+    {q:"Combien font 3³ (3 au cube) ?", a:["27","18","9","24"], c:0},
+    {q:"Si un train roule à 120 km/h, combien de km fait-il en 30 min ?", a:["60 km","90 km","30 km","45 km"], c:0},
+    {q:"Quel est le PPCM de 4 et 6 ?", a:["12","8","24","6"], c:0},
+    {q:"Combien font 5/6 - 1/3 ?", a:["1/2","4/3","1/6","2/3"], c:0},
+    {q:"Un triangle a des angles de 60° et 80°. Quel est le troisième ?", a:["40°","50°","30°","60°"], c:0},
+],
+'language-9-12': [
+    {q:"Qu'est-ce qu'une métaphore ?", a:["Une comparaison sans 'comme'","Une comparaison avec 'comme'","Une exagération","Une répétition"], c:0},
+    {q:"Quel est le COD dans 'Je mange une pomme' ?", a:["Une pomme","Je","Mange","Pas de COD"], c:0},
+    {q:"Quel temps est 'il avait mangé' ?", a:["Plus-que-parfait","Imparfait","Passé composé","Passé simple"], c:0},
+    {q:"Quel est l'antonyme de 'bienveillant' ?", a:["Malveillant","Violent","Indifférent","Cruel"], c:0},
+    {q:"Qu'est-ce qu'une proposition subordonnée relative ?", a:["Une proposition introduite par un pronom relatif","Une proposition principale","Une proposition indépendante","Une proposition temporelle"], c:0},
+    {q:"Qui a écrit 'Les Misérables' ?", a:["Victor Hugo","Emile Zola","Gustave Flaubert","Honoré de Balzac"], c:0},
+    {q:"Quel est le mode du verbe dans 'Que tu viennes' ?", a:["Subjonctif","Indicatif","Conditionnel","Impératif"], c:0},
+    {q:"Qu'est-ce qu'un oxymore ?", a:["Association de mots contradictoires","Une répétition","Une exagération","Une comparaison"], c:0},
+    {q:"Quel auteur a écrit 'Le Petit Prince' ?", a:["Antoine de Saint-Exupéry","Jules Verne","Guy de Maupassant","Molière"], c:0},
+    {q:"Quelle est la nature de 'rapidement' ?", a:["Adverbe","Adjectif","Verbe","Nom"], c:0},
+    {q:"Quel est le passé simple de 'voir' à la 3e personne ?", a:["Vit","Voyait","A vu","Verrait"], c:0},
+    {q:"Qu'est-ce qu'une allitération ?", a:["Répétition d'un son consonantique","Répétition d'un son vocalique","Une métaphore","Un oxymore"], c:0},
+],
+'science-9-12': [
+    {q:"Quel est le symbole chimique de l'or ?", a:["Au","Or","Go","Ag"], c:0},
+    {q:"Combien de planètes y a-t-il dans le système solaire ?", a:["8","9","7","10"], c:0},
+    {q:"Quelle est la formule chimique du sel de table ?", a:["NaCl","KCl","NaF","CaCl₂"], c:0},
+    {q:"Qui a découvert la pénicilline ?", a:["Alexander Fleming","Louis Pasteur","Marie Curie","Isaac Newton"], c:0},
+    {q:"Quel organe produit l'insuline ?", a:["Le pancréas","Le foie","Les reins","L'estomac"], c:0},
+    {q:"Quelle est la distance moyenne Terre-Soleil ?", a:["150 millions km","100 millions km","200 millions km","300 millions km"], c:0},
+    {q:"Qu'est-ce que l'ADN ?", a:["L'acide désoxyribonucléique","Un type de protéine","Un glucide","Un lipide"], c:0},
+    {q:"Quel est le symbole chimique de l'oxygène ?", a:["O","Ox","Oy","On"], c:0},
+    {q:"Quelle planète possède des anneaux visibles ?", a:["Saturne","Jupiter","Neptune","Uranus"], c:0},
+    {q:"Combien de chromosomes a l'être humain ?", a:["46","23","48","44"], c:0},
+    {q:"Qu'est-ce que la mitose ?", a:["Division cellulaire","Type de protéine","Forme d'ADN","Organe"], c:0},
+    {q:"Quel est le symbole chimique du fer ?", a:["Fe","Fr","Fi","Fo"], c:0},
+],
+'history-9-12': [
+    {q:"En quelle année la Révolution française a-t-elle commencé ?", a:["1789","1799","1776","1804"], c:0},
+    {q:"Qui était le premier président de la Ve République française ?", a:["Charles de Gaulle","Georges Pompidou","Valéry Giscard d'Estaing","François Mitterrand"], c:0},
+    {q:"En quelle année s'est terminée la Seconde Guerre mondiale ?", a:["1945","1944","1946","1943"], c:0},
+    {q:"Quel roi a fait construire le château de Versailles ?", a:["Louis XIV","Louis XVI","Henri IV","Napoléon"], c:0},
+    {q:"Qui a découvert l'Amérique en 1492 ?", a:["Christophe Colomb","Vasco de Gama","Magellan","Amerigo Vespucci"], c:0},
+    {q:"Quelle civilisation a construit les pyramides de Gizeh ?", a:["Les Égyptiens","Les Romains","Les Grecs","Les Mayas"], c:0},
+    {q:"En quelle année Napoléon a-t-il été exilé à Sainte-Hélène ?", a:["1815","1814","1816","1812"], c:0},
+    {q:"Qui a peint la Joconde ?", a:["Léonard de Vinci","Michel-Ange","Raphaël","Botticelli"], c:0},
+    {q:"Quelle ville fut la capitale de l'Empire romain d'Occident ?", a:["Rome","Constantinople","Ravenne","Milan"], c:0},
+    {q:"Quel événement a déclenché la Première Guerre mondiale ?", a:["Assassinat de François-Ferdinand","Invasion de la Belgique","Crise marocaine","Traité de Berlin"], c:0},
+    {q:"En quelle année la Bastille a-t-elle été prise d'assaut ?", a:["1789","1790","1788","1791"], c:0},
+    {q:"Qui était Vercingétorix ?", a:["Chef gaulois","Roi romain","Guerrier grec","Pharaon égyptien"], c:0},
+],
+'geo-9-12': [
+    {q:"Quelle est la capitale de l'Australie ?", a:["Canberra","Sydney","Melbourne","Brisbane"], c:0},
+    {q:"Quel est le plus long fleuve du monde ?", a:["Le Nil","L'Amazone","Le Yangtsé","Le Mississippi"], c:0},
+    {q:"Quel pays a la plus grande superficie ?", a:["Russie","Canada","Chine","USA"], c:0},
+    {q:"Quel est le plus haut sommet du monde ?", a:["Everest","K2","Kangchenjunga","Lhotse"], c:0},
+    {q:"Dans quel pays se trouve le Machu Picchu ?", a:["Pérou","Mexique","Bolivie","Chili"], c:0},
+    {q:"Quelle mer sépare l'Europe de l'Afrique (à l'ouest) ?", a:["Méditerranée","Atlantique","Mer rouge","Mer noire"], c:0},
+    {q:"Quelle est la capitale du Brésil ?", a:["Brasilia","Rio de Janeiro","São Paulo","Salvador"], c:0},
+    {q:"Quel est l'océan le plus grand ?", a:["Pacifique","Atlantique","Indien","Arctique"], c:0},
+    {q:"Dans quel pays se trouvent les pyramides de Gizeh ?", a:["Égypte","Mexique","Pérou","Libye"], c:0},
+    {q:"Quelle est la capitale du Japon ?", a:["Tokyo","Osaka","Kyoto","Nagoya"], c:0},
+    {q:"Quel détroit sépare l'Espagne du Maroc ?", a:["Détroit de Gibraltar","Bosphore","Dardanelles","Messine"], c:0},
+    {q:"Quel est le plus petit pays du monde ?", a:["Vatican","Monaco","Saint-Marin","Liechtenstein"], c:0},
+],
+
+// ─────────────────────────────────────────────
+// 13-18 ANS
+// ─────────────────────────────────────────────
+'math-13-18': [
+    {q:"Quelle est la dérivée de f(x) = x³ ?", a:["3x²","x²","3x","2x³"], c:0},
+    {q:"Quel est le discriminant de x² - 5x + 6 = 0 ?", a:["1","11","-11","25"], c:0},
+    {q:"Combien vaut sin(30°) ?", a:["1/2","√3/2","√2/2","1"], c:0},
+    {q:"Quelle est la limite de (sin x)/x quand x→0 ?", a:["1","0","∞","Indéfinie"], c:0},
+    {q:"Combien vaut cos(60°) ?", a:["1/2","√3/2","√2/2","0"], c:0},
+    {q:"Quelle est la formule du volume d'une sphère ?", a:["(4/3)πr³","πr²","(2/3)πr³","4πr²"], c:0},
+    {q:"Résous 2x² - 8 = 0", a:["x = ±2","x = 2","x = -2","x = 4"], c:0},
+    {q:"Quelle est la dérivée de ln(x) ?", a:["1/x","ln(x)/x","x·ln(x)","1"], c:0},
+    {q:"Combien vaut e^0 ?", a:["1","0","e","∞"], c:0},
+    {q:"Quel est le développement de (a+b)² ?", a:["a²+2ab+b²","a²+b²","a²-2ab+b²","2a+2b"], c:0},
+    {q:"Quelle est l'intégrale de 2x dx ?", a:["x² + C","x + C","2 + C","2x² + C"], c:0},
+    {q:"Combien vaut tan(45°) ?", a:["1","√3","1/√3","0"], c:0},
+],
+'science-13-18': [
+    {q:"Quelle est la masse d'un proton (environ) ?", a:["1,67×10⁻²⁷ kg","9,11×10⁻³¹ kg","1,67×10⁻³¹ kg","9,11×10⁻²⁷ kg"], c:0},
+    {q:"Quelle loi décrit la relation F = ma ?", a:["2e loi de Newton","1re loi de Newton","3e loi de Newton","Loi d'Ohm"], c:0},
+    {q:"Quelle est la formule de l'énergie cinétique ?", a:["½mv²","mv²","½mv","mgh"], c:0},
+    {q:"Quel est le numéro atomique du carbone ?", a:["6","12","8","14"], c:0},
+    {q:"Qu'est-ce que la constante d'Avogadro ?", a:["6,022×10²³","6,626×10⁻³⁴","3×10⁸","1,38×10⁻²³"], c:0},
+    {q:"Quelle est la formule de l'eau ?", a:["H₂O","HO","H₂O₂","HO₂"], c:0},
+    {q:"Quel est le type de liaison dans NaCl ?", a:["Ionique","Covalente","Métallique","Hydrogène"], c:0},
+    {q:"Quelle est la vitesse de la lumière dans le vide ?", a:["3×10⁸ m/s","3×10⁶ m/s","3×10¹⁰ m/s","1,5×10⁸ m/s"], c:0},
+    {q:"Qu'est-ce que l'entropie en thermodynamique ?", a:["Mesure du désordre","Mesure de l'énergie","Mesure de la pression","Mesure du volume"], c:0},
+    {q:"Quelle équation représente la loi d'Ohm ?", a:["U = RI","P = UI","W = Pt","F = ma"], c:0},
+    {q:"Quel est le pH d'une solution neutre à 25°C ?", a:["7","0","14","5"], c:0},
+    {q:"Qu'est-ce qu'une réaction exothermique ?", a:["Libère de la chaleur","Absorbe de la chaleur","Ne change pas la température","Produit de la lumière"], c:0},
+],
+'history-13-18': [
+    {q:"En quelle année a eu lieu la chute du mur de Berlin ?", a:["1989","1990","1991","1988"], c:0},
+    {q:"Qui a prononcé le discours 'I Have a Dream' ?", a:["Martin Luther King","Malcolm X","Barack Obama","Frederick Douglass"], c:0},
+    {q:"En quelle année la Première Guerre mondiale a-t-elle débuté ?", a:["1914","1916","1912","1918"], c:0},
+    {q:"Quel traité a mis fin à la Première Guerre mondiale ?", a:["Traité de Versailles","Traité de Paris","Traité de Berlin","Traité de Rome"], c:0},
+    {q:"Qui était le leader de l'URSS pendant la Seconde Guerre mondiale ?", a:["Staline","Lénine","Trotski","Khrouchtchev"], c:0},
+    {q:"En quelle année la Déclaration des droits de l'homme fut adoptée (en France) ?", a:["1789","1776","1791","1793"], c:0},
+    {q:"Qui a écrit 'Le Prince' ?", a:["Machiavel","Rousseau","Voltaire","Montesquieu"], c:0},
+    {q:"Quel empire a existé le plus longtemps dans l'histoire ?", a:["Empire byzantin","Empire romain","Empire ottoman","Empire britannique"], c:0},
+    {q:"En quelle année l'ONU a-t-elle été fondée ?", a:["1945","1919","1950","1946"], c:0},
+    {q:"Qui était le premier homme sur la Lune ?", a:["Neil Armstrong","Buzz Aldrin","Youri Gagarine","John Glenn"], c:0},
+    {q:"En quelle année Napoléon fut-il couronné empereur ?", a:["1804","1799","1800","1806"], c:0},
+    {q:"Quel événement a déclenché la crise économique de 1929 ?", a:["Krach boursier de Wall Street","Grande Dépression","Guerre mondiale","Révolution russe"], c:0},
+],
+'geo-13-18': [
+    {q:"Quelle est la population mondiale approximative en 2024 ?", a:["8 milliards","7 milliards","9 milliards","6 milliards"], c:0},
+    {q:"Quelle est la plus grande ville du monde par population ?", a:["Tokyo","Shanghai","Delhi","Mexico"], c:0},
+    {q:"Quel pays possède le plus grand nombre de langues officielles ?", a:["Afrique du Sud (11)","Suisse (4)","Inde (22)","Bolivie (37)"], c:3},
+    {q:"Quel est le détroit le plus emprunté du monde ?", a:["Détroit de Malacca","Détroit de Gibraltar","Bosphore","Détroit d'Ormuz"], c:0},
+    {q:"Quelle est la capitale du Kazakhstan ?", a:["Astana","Almaty","Chymkent","Karaganda"], c:0},
+    {q:"Quel fleuve traverse Paris ?", a:["La Seine","La Loire","La Garonne","Le Rhône"], c:0},
+    {q:"Quel est le pays le plus peuplé d'Afrique ?", a:["Nigeria","Éthiopie","Égypte","DRC"], c:0},
+    {q:"Dans quel pays se trouve le désert de Gobi ?", a:["Mongolie/Chine","Inde","Kazakhstan","Iran"], c:0},
+    {q:"Quelle est la profondeur maximale de l'océan Pacifique ?", a:["11 034 m","8 605 m","9 200 m","7 450 m"], c:0},
+    {q:"Quel est le nom du plus grand désert du monde ?", a:["Sahara","Antarctique","Arabique","Gobi"], c:0},
+    {q:"Quelle chaîne de montagnes sépare l'Europe de l'Asie ?", a:["Oural","Caucase","Alpes","Himalaya"], c:0},
+    {q:"Dans quelle ville se trouve la Sagrada Familia ?", a:["Barcelone","Madrid","Séville","Valence"], c:0},
+],
+'logic-13-18': [
+    {q:"Si tous les A sont B, et tous les B sont C, alors :", a:["Tous les A sont C","Tous les C sont A","Aucun A n'est C","Impossible à dire"], c:0},
+    {q:"Quelle est la prochaine valeur : 2, 6, 12, 20, 30, ... ?", a:["42","40","44","36"], c:0},
+    {q:"Dans une famille de 5 enfants, chacun a une sœur. Combien de filles minimum ?", a:["1","2","3","5"], c:0},
+    {q:"Si CHAT = 8, CHIEN = 15, alors CHAT + CHIEN = ?", a:["23","22","24","21"], c:0},
+    {q:"Complète : 1, 1, 2, 3, 5, 8, ... ?", a:["13","11","12","14"], c:0},
+    {q:"Un snail double de vitesse chaque jour. En 10 jours il parcourt 1 km. En combien de jours parcourt-il 0,5 km ?", a:["9","5","8","7"], c:0},
+    {q:"Quelle est la suite : O, T, T, F, F, S, S, E, ... ?", a:["N","T","O","H"], c:0},
+    {q:"Si 5 machines font 5 pièces en 5 min, combien de machines pour 100 pièces en 100 min ?", a:["5","100","50","10"], c:0},
+    {q:"Quel nombre complète : 3, 9, 27, 81, ... ?", a:["243","162","108","324"], c:0},
+    {q:"Un rectangle a un périmètre de 24 cm. Sa longueur est le double de sa largeur. Quelle est sa largeur ?", a:["4 cm","6 cm","8 cm","3 cm"], c:0},
+    {q:"Quelle lettre vient ensuite : A, E, I, O, ... ?", a:["U","Y","P","Q"], c:0},
+    {q:"Si demain c'est jeudi, quel jour était il y a 3 jours ?", a:["Dimanche","Lundi","Samedi","Vendredi"], c:0},
+],
+
+};
+
+// ════════════════════════════════════════════════════════════
+// CATALOGUE DES JEUX AFFICHÉS
+// ════════════════════════════════════════════════════════════
+
+const GAMES_CATALOG = {
+'3-5': [
+    {id:'math-3-5',     name:'Compte et calcule', emoji:'🔢', cat:'math',     diff:1, desc:'Chiffres, additions et formes pour les petits', color:'from-blue-500/20 to-cyan-500/20 border-blue-500'},
+    {id:'language-3-5', name:'Mots et lettres',   emoji:'📖', cat:'language', diff:1, desc:'Alphabet, animaux et premiers mots', color:'from-pink-500/20 to-red-500/20 border-pink-500'},
+    {id:'science-3-5',  name:'La nature',         emoji:'🌱', cat:'science',  diff:1, desc:'Animaux, saisons et découvertes nature', color:'from-green-500/20 to-emerald-500/20 border-green-500'},
+    {id:'memory-3-5',   name:'Mémoire animaux',   emoji:'🐘', cat:'memory',   diff:1, desc:'Retrouve les paires avec 8 cartes', color:'from-yellow-500/20 to-orange-500/20 border-yellow-500'},
+],
+'6-8': [
+    {id:'math-6-8',     name:'Calcul mental',       emoji:'🧮', cat:'math',     diff:2, desc:'Multiplications, divisions et problèmes', color:'from-blue-500/20 to-cyan-500/20 border-blue-500'},
+    {id:'language-6-8', name:'Grammaire & vocab',   emoji:'✍️', cat:'language', diff:2, desc:'Conjugaison, pluriels et synonymes', color:'from-pink-500/20 to-red-500/20 border-pink-500'},
+    {id:'science-6-8',  name:'Sciences du vivant',  emoji:'🔬', cat:'science',  diff:2, desc:'Biologie, physique et chimie de base', color:'from-green-500/20 to-emerald-500/20 border-green-500'},
+    {id:'memory-6-8',   name:'Mémoire pro',         emoji:'🃏', cat:'memory',   diff:2, desc:'12 paires à retrouver', color:'from-yellow-500/20 to-orange-500/20 border-yellow-500'},
+],
+'9-12': [
+    {id:'math-9-12',     name:'Algèbre & géométrie', emoji:'📐', cat:'math',     diff:3, desc:'Fractions, équations et aires', color:'from-blue-500/20 to-cyan-500/20 border-blue-500'},
+    {id:'language-9-12', name:'Français avancé',     emoji:'📜', cat:'language', diff:3, desc:'Analyse grammaticale, figures de style', color:'from-pink-500/20 to-red-500/20 border-pink-500'},
+    {id:'science-9-12',  name:'Chimie & physique',   emoji:'⚗️', cat:'science',  diff:3, desc:'Symboles chimiques, lois physiques', color:'from-green-500/20 to-emerald-500/20 border-green-500'},
+    {id:'history-9-12',  name:'Histoire de France',  emoji:'🏛️', cat:'history',  diff:3, desc:'Révolution, guerres mondiales, rois', color:'from-amber-500/20 to-yellow-500/20 border-amber-500'},
+    {id:'geo-9-12',      name:'Géographie mondiale', emoji:'🌍', cat:'geo',      diff:3, desc:'Capitales, fleuves, reliefs', color:'from-teal-500/20 to-cyan-500/20 border-teal-500'},
+    {id:'logic-9-12',    name:'Suites logiques',     emoji:'🧩', cat:'logic',    diff:3, desc:'Suites numériques et raisonnement', color:'from-purple-500/20 to-indigo-500/20 border-purple-500'},
+    {id:'memory-9-12',   name:'Mémoire expert',      emoji:'🧠', cat:'memory',   diff:3, desc:'16 paires chrono', color:'from-yellow-500/20 to-orange-500/20 border-yellow-500'},
+],
+'13-18': [
+    {id:'math-13-18',     name:'Maths lycée',          emoji:'∫', cat:'math',     diff:4, desc:'Dérivées, trigonométrie, équations', color:'from-blue-500/20 to-cyan-500/20 border-blue-500'},
+    {id:'science-13-18',  name:'Physique-Chimie',       emoji:'⚛️', cat:'science',  diff:4, desc:'Lois de Newton, chimie organique', color:'from-green-500/20 to-emerald-500/20 border-green-500'},
+    {id:'history-13-18',  name:'Histoire contemporaine',emoji:'🗺️', cat:'history',  diff:4, desc:'XXe siècle, guerres, géopolitique', color:'from-amber-500/20 to-yellow-500/20 border-amber-500'},
+    {id:'geo-13-18',      name:'Géo & démographie',     emoji:'🌐', cat:'geo',      diff:4, desc:'Population, économie, mondialisation', color:'from-teal-500/20 to-cyan-500/20 border-teal-500'},
+    {id:'logic-13-18',    name:'Logique & raisonnement',emoji:'🔍', cat:'logic',    diff:4, desc:'Syllogismes, suites, énigmes', color:'from-purple-500/20 to-indigo-500/20 border-purple-500'},
+    {id:'memory-13-18',   name:'Mémoire champion',      emoji:'🏆', cat:'memory',   diff:4, desc:'20 paires en moins de 2 min', color:'from-yellow-500/20 to-orange-500/20 border-yellow-500'},
+],
+// Versions simplifiées pour les suites logiques 3-5 et 6-8
+'logic-3-5': null,
+'logic-6-8': null,
+};
+
+// Ajout des jeux logique pour 3-5 et 6-8 dans les catalogues
+GAMES_CATALOG['3-5'].push({id:'logic-3-5', name:'Suite de chiffres', emoji:'🔢', cat:'logic', diff:1, desc:'Trouve le nombre qui manque', color:'from-purple-500/20 to-indigo-500/20 border-purple-500'});
+GAMES_CATALOG['6-8'].push({id:'logic-6-8', name:'Suites logiques',   emoji:'🧩', cat:'logic', diff:2, desc:'Suites et raisonnement', color:'from-purple-500/20 to-indigo-500/20 border-purple-500'});
+
+// Banques logique simples
+QUESTION_BANKS['logic-3-5'] = [
+    {q:"Complète : 1, 2, 3, ... ?", a:["4","5","6","7"], c:0},
+    {q:"Complète : 2, 4, 6, ... ?", a:["8","7","9","10"], c:0},
+    {q:"Complète : 5, 10, 15, ... ?", a:["20","25","18","22"], c:0},
+    {q:"Quel est l'intrus : 🐶 🐱 🐭 🚗 ?", a:["🚗","🐶","🐱","🐭"], c:0},
+    {q:"Complète : 1, 3, 5, 7, ... ?", a:["9","8","10","11"], c:0},
+    {q:"Combien font 🍎🍎🍎 + 🍎🍎 ?", a:["5","6","4","7"], c:0},
+    {q:"Complète : 10, 20, 30, ... ?", a:["40","50","35","45"], c:0},
+    {q:"Quel est l'intrus : 🔴 🔵 🟢 🐶 ?", a:["🐶","🔴","🔵","🟢"], c:0},
+    {q:"Complète : 3, 6, 9, ... ?", a:["12","10","11","15"], c:0},
+    {q:"Si 🍌+🍌 = 4, combien fait 🍌 ?", a:["2","4","1","3"], c:0},
+];
+
+QUESTION_BANKS['logic-6-8'] = [
+    {q:"Complète : 3, 6, 12, 24, ... ?", a:["48","36","30","40"], c:0},
+    {q:"Complète : 1, 4, 9, 16, ... ?", a:["25","20","24","30"], c:0},
+    {q:"Complète : 100, 50, 25, ... ?", a:["12.5","10","20","15"], c:0},
+    {q:"Quel est l'intrus : 3, 6, 8, 9, 12 ?", a:["8","3","6","9"], c:0},
+    {q:"Complète : 2, 3, 5, 8, 13, ... ?", a:["21","20","18","15"], c:0},
+    {q:"Si A=1, B=2, C=3... quelle est la valeur de F ?", a:["6","5","7","4"], c:0},
+    {q:"Complète : 256, 64, 16, 4, ... ?", a:["1","2","8","0"], c:0},
+    {q:"Quel nombre vient ensuite : 1, 2, 4, 7, 11, ... ?", a:["16","15","17","14"], c:0},
+    {q:"Complète : 1, 8, 27, 64, ... ?", a:["125","100","120","150"], c:0},
+    {q:"Quel est l'intrus : 2, 4, 6, 9, 10 ?", a:["9","2","4","10"], c:0},
+];
+
+// Banque logique 9-12
+QUESTION_BANKS['logic-9-12'] = [
+    {q:"Quelle est la suite : 2, 5, 10, 17, 26, ... ?", a:["37","35","33","40"], c:0},
+    {q:"Complète : 1, 2, 6, 24, 120, ... ?", a:["720","600","480","840"], c:0},
+    {q:"Si LUNDI = 6, MARDI = 5, MERCREDI = 8, JEUDI = ?", a:["5","4","6","7"], c:0},
+    {q:"Quel est l'intrus parmi : 17, 23, 37, 49, 53 ?", a:["49","17","23","53"], c:0},
+    {q:"Complète la suite : 1, 3, 7, 15, 31, ... ?", a:["63","61","59","57"], c:0},
+    {q:"Si 3 chats attrapent 3 souris en 3 min, combien de min pour 9 chats = 9 souris ?", a:["3","9","1","6"], c:0},
+    {q:"Dans la suite A, B, D, G, K, ..., quelle est la prochaine lettre ?", a:["P","O","Q","N"], c:0},
+    {q:"Quelle fraction est la plus grande : 3/5, 5/8, 7/12, 2/3 ?", a:["2/3","3/5","5/8","7/12"], c:0},
+    {q:"Complète : 0, 1, 1, 2, 3, 5, 8, 13, ... ?", a:["21","20","22","19"], c:0},
+    {q:"Si x + y = 10 et x × y = 24, que vaut x + y + xy ?", a:["34","32","36","30"], c:0},
+    {q:"Quel est le prochain terme : 1, 5, 14, 30, 55, ... ?", a:["91","85","77","105"], c:0},
+    {q:"Combien y a-t-il de diagonales dans un hexagone ?", a:["9","6","12","8"], c:0},
+];
+
+// ════════════════════════════════════════════════════════════
+// ÉTAT DU JEU
+// ════════════════════════════════════════════════════════════
+let currentAge      = null;
+let currentCat      = 'all';
+let currentGameId   = null;
+let questions       = [];
+let qIndex          = 0;
+let score           = 0;
+let correctAnswers  = 0;
+let totalPoints     = parseInt(localStorage.getItem('reevox_learn_pts') || '0');
+let answered        = false;
+let timerInterval   = null;
+let timeLeft        = 15;
+
+// ════════════════════════════════════════════════════════════
+// NAVIGATION / AFFICHAGE
+// ════════════════════════════════════════════════════════════
+
+function show(id) { ['mainPage','gamePage','memoryPage'].forEach(p => document.getElementById(p).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+
+window.selectAge = function(age) {
+    currentAge = age;
+    document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('ring-4','ring-blue-400'));
+    event.target.classList.add('ring-4','ring-blue-400');
+    const labels = {'3-5':'Maternelle 🌸','6-8':'Primaire 🌟','9-12':'Collège 🚀','13-18':'Lycée 🎓'};
+    document.getElementById('ageDisplay').textContent = '✅ ' + labels[age];
+    displayGames();
+};
+
+window.filterCat = function(cat) {
+    currentCat = cat;
+    document.querySelectorAll('.cat-btn').forEach(b => { b.className = 'cat-btn px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-white/5 border-white/20 hover:bg-white/10'; });
+    event.target.className = 'cat-btn active-cat px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-blue-500/20 border-blue-500 text-blue-300 font-bold';
+    displayGames();
+};
+
+function displayGames() {
+    const grid  = document.getElementById('gamesGrid');
+    const noMsg = document.getElementById('noGamesMsg');
+    if (!currentAge) { grid.innerHTML=''; noMsg.classList.remove('hidden'); return; }
+    noMsg.classList.add('hidden');
+
+    let games = GAMES_CATALOG[currentAge] || [];
+    if (currentCat !== 'all') games = games.filter(g => g.cat === currentCat);
+    if (!games.length) { grid.innerHTML='<p class="col-span-4 text-center text-gray-400 py-10">Aucun jeu dans cette catégorie pour cet âge.</p>'; return; }
+
+    const catNames = {math:'🔢 Maths',language:'📚 Français',science:'🔬 Sciences',history:'🏛️ Histoire',geo:'🌍 Géo',logic:'🧩 Logique',memory:'🧠 Mémoire'};
+    grid.innerHTML = games.map((g,i) => `
+        <div class="game-card backdrop-blur-xl bg-gradient-to-br ${g.color} border-2 rounded-3xl p-6" onclick="launchGame('${g.id}')" style="animation:fadeUp 0.4s ease ${i*0.07}s both">
+            <div class="text-5xl mb-3 text-center">${g.emoji}</div>
+            <h3 class="text-lg font-bold mb-1 text-center">${g.name}</h3>
+            <p class="text-xs text-gray-400 mb-3 text-center">${g.desc}</p>
+            <div class="flex justify-between items-center">
+                <span class="text-xs bg-white/10 px-2 py-1 rounded-full">${catNames[g.cat]}</span>
+                <span class="text-yellow-400 text-sm">${'⭐'.repeat(g.diff)}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// LANCEMENT D'UN JEU
+// ════════════════════════════════════════════════════════════
+
+window.launchGame = function(gameId) {
+    currentGameId = gameId;
+
+    if (gameId.startsWith('memory')) {
+        launchMemoryGame(gameId);
+        return;
+    }
+
+    const bank = QUESTION_BANKS[gameId];
+    if (!bank) { alert('Jeu bientôt disponible !'); return; }
+
+    // Mélanger et prendre 12 questions
+    questions = [...bank].sort(() => Math.random() - 0.5).slice(0, 12);
+    // Mélanger les réponses de chaque question
+    questions = questions.map(q => {
+        const indexed = q.a.map((ans, i) => ({ans, correct: i === q.c}));
+        const shuffled = indexed.sort(() => Math.random() - 0.5);
+        return { q: q.q, a: shuffled.map(x => x.ans), c: shuffled.findIndex(x => x.correct) };
+    });
+
+    qIndex = 0; score = 0; correctAnswers = 0; answered = false;
+
+    const catNames = ['3-5','6-8','9-12','13-18'];
+    const allGames = catNames.flatMap(a => GAMES_CATALOG[a] || []);
+    const gameInfo = allGames.find(g => g.id === gameId);
+    document.getElementById('gameNameDisplay').textContent = (gameInfo?.emoji || '🎮') + ' ' + (gameInfo?.name || gameId);
+    document.getElementById('qTotal').textContent = questions.length;
+
+    show('gamePage');
+    document.getElementById('resultsPanel').classList.add('hidden');
+    renderQuestion();
+};
+
+function renderQuestion() {
+    if (qIndex >= questions.length) { showResults(); return; }
+    answered = false;
+    clearInterval(timerInterval);
+
+    const q    = questions[qIndex];
+    const pct  = Math.round((qIndex / questions.length) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('qNum').textContent   = qIndex + 1;
+    document.getElementById('liveScore').textContent = score;
+    document.getElementById('feedback').classList.add('hidden');
+    timeLeft = 15;
+
+    document.getElementById('questionCard').innerHTML = `
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs text-gray-400">Question ${qIndex+1}/${questions.length}</span>
+                <span id="timerDisplay" class="text-sm font-bold text-yellow-400">⏱ ${timeLeft}s</span>
+            </div>
+            <h3 class="text-xl font-bold text-white leading-relaxed">${q.q}</h3>
+        </div>
+        <div class="grid grid-cols-1 gap-3" id="answersGrid">
+            ${q.a.map((ans, i) => `
+                <button id="ans-${i}" class="answer-btn text-left bg-white/5 border-2 border-white/20 rounded-xl px-5 py-4 font-semibold hover:bg-white/10 hover:border-blue-400 transition-all"
+                    onclick="submitAnswer(${i})">
+                    <span class="text-blue-400 font-bold mr-3">${['A','B','C','D'][i]}.</span>${ans}
+                </button>
+            `).join('')}
+        </div>
+    `;
+
+    // Timer
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        const el = document.getElementById('timerDisplay');
+        if (el) { el.textContent = `⏱ ${timeLeft}s`; el.className = timeLeft <= 5 ? 'text-sm font-bold text-red-400' : 'text-sm font-bold text-yellow-400'; }
+        if (timeLeft <= 0) { clearInterval(timerInterval); if (!answered) submitAnswer(-1); }
+    }, 1000);
+}
+
+window.submitAnswer = function(idx) {
+    if (answered) return;
+    answered = true;
+    clearInterval(timerInterval);
+
+    const q       = questions[qIndex];
+    const correct = q.c;
+    const isRight = idx === correct;
+    const pts     = isRight ? Math.max(10, timeLeft * 5) : 0;
+
+    // Colorier les boutons
+    for (let i = 0; i < q.a.length; i++) {
+        const btn = document.getElementById('ans-' + i);
+        if (!btn) continue;
+        btn.disabled = true;
+        if (i === correct)     btn.classList.add('correct');
+        else if (i === idx)    btn.classList.add('wrong');
+    }
+
+    if (isRight) {
+        score += pts;
+        correctAnswers++;
+        showFeedback('✅ Correct ! +' + pts + ' pts', 'bg-green-500/20 text-green-400 border border-green-500/30');
+    } else {
+        showFeedback(idx === -1 ? '⏰ Temps écoulé !' : '❌ Mauvaise réponse — la bonne était : ' + q.a[correct], 'bg-red-500/20 text-red-400 border border-red-500/30');
+    }
+
+    document.getElementById('liveScore').textContent = score;
+    setTimeout(() => { qIndex++; renderQuestion(); }, 1400);
+};
+
+function showFeedback(msg, cls) {
+    const el = document.getElementById('feedback');
+    el.className = 'text-center py-3 rounded-xl mb-2 text-base font-semibold ' + cls;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+}
+
+function showResults() {
+    clearInterval(timerInterval);
+    document.getElementById('questionCard').classList.add('hidden');
+    document.getElementById('feedback').classList.add('hidden');
+
+    const acc   = Math.round((correctAnswers / questions.length) * 100);
+    const emoji = acc >= 90 ? '🏆' : acc >= 70 ? '🎉' : acc >= 50 ? '👍' : '💪';
+    const title = acc >= 90 ? 'Excellent !' : acc >= 70 ? 'Très bien !' : acc >= 50 ? 'Pas mal !' : 'Continue à t\'entraîner !';
+
+    document.getElementById('resultEmoji').textContent    = emoji;
+    document.getElementById('resultTitle').textContent    = title;
+    document.getElementById('resultSubtitle').textContent = `${correctAnswers}/${questions.length} bonnes réponses`;
+    document.getElementById('finalScore').textContent     = score;
+    document.getElementById('correctCount').textContent   = correctAnswers;
+    document.getElementById('accuracyPct').textContent    = acc + '%';
+
+    totalPoints += score;
+    localStorage.setItem('reevox_learn_pts', totalPoints);
+    document.getElementById('totalScore').textContent = '⭐ ' + totalPoints + ' pts';
+
+    document.getElementById('resultsPanel').classList.remove('hidden');
+    document.getElementById('resultsPanel').classList.add('pop-in');
+}
+
+window.restartCurrentGame = function() {
+    document.getElementById('questionCard').classList.remove('hidden');
+    document.getElementById('resultsPanel').classList.add('hidden');
+    launchGame(currentGameId);
+};
+
+window.exitGame = function() {
+    clearInterval(timerInterval);
+    document.getElementById('questionCard').classList.remove('hidden');
+    show('mainPage');
+    displayGames();
+};
+
+// ════════════════════════════════════════════════════════════
+// JEU DE MÉMOIRE
+// ════════════════════════════════════════════════════════════
+
+const MEMORY_SETS = {
+    'memory-3-5':  {pairs:6,  items:['🐶','🐱','🐭','🐰','🦊','🐻']},
+    'memory-6-8':  {pairs:8,  items:['🌍','🌙','⭐','☀️','🌊','🏔️','🌈','⚡']},
+    'memory-9-12': {pairs:10, items:['🎸','🎹','🎺','🎻','🥁','🎷','🪗','🎵','🎶','🎼']},
+    'memory-13-18':{pairs:12, items:['⚛️','🧬','🔬','⚗️','🧪','🔭','💡','🔋','🧲','📡','💻','🛰️']},
+};
+
+function launchMemoryGame(gameId) {
+    const cfg = MEMORY_SETS[gameId] || MEMORY_SETS['memory-3-5'];
+    const catNames = ['3-5','6-8','9-12','13-18'];
+    const allGames = catNames.flatMap(a => GAMES_CATALOG[a] || []);
+    const gameInfo = allGames.find(g => g.id === gameId);
+
+    document.getElementById('memGameName').textContent = (gameInfo?.emoji || '🧠') + ' ' + (gameInfo?.name || 'Mémoire');
+    document.getElementById('memScore').textContent = '0';
+
+    show('memoryPage');
+
+    const items = [...cfg.items.slice(0, cfg.pairs), ...cfg.items.slice(0, cfg.pairs)].sort(() => Math.random() - 0.5);
+    let flipped = [], matched = 0, memScore = 0, locked = false;
+    const cols = cfg.pairs <= 6 ? 4 : cfg.pairs <= 10 ? 5 : 6;
+
+    document.getElementById('memoryContainer').innerHTML = `
+        <p class="text-center text-gray-400 mb-4 text-sm">Retrouve les ${cfg.pairs} paires 🃏</p>
+        <div class="grid gap-3 max-w-3xl mx-auto" style="grid-template-columns:repeat(${cols},1fr)">
+            ${items.map((item, i) => `
+                <div id="mc-${i}" data-item="${item}" data-idx="${i}"
+                     class="mem-card aspect-square rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-3xl cursor-pointer hover:scale-105 transition-all select-none border-2 border-transparent"
+                     onclick="flipMem(${i})">
+                    <span class="front text-3xl">?</span>
+                    <span class="back hidden text-3xl">${item}</span>
+                </div>
+            `).join('')}
+        </div>
+        <div id="memWin" class="hidden text-center mt-8 pop-in">
+            <div class="text-7xl mb-3">🎉</div>
+            <h3 class="orbitron text-2xl font-bold text-yellow-400 mb-2">Bravo !</h3>
+            <p class="text-gray-300 mb-4">Tu as trouvé toutes les paires !</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="launchMemoryGame('${gameId}')" class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 rounded-xl font-bold">🔄 Rejouer</button>
+                <button onclick="exitGame()" class="bg-white/10 border border-white/20 px-6 py-3 rounded-xl font-bold">← Retour</button>
+            </div>
+        </div>
+    `;
+
+    window.flipMem = function(idx) {
+        if (locked) return;
+        const card = document.getElementById('mc-' + idx);
+        if (!card || card.classList.contains('matched') || flipped.find(f => f.idx === idx)) return;
+
+        card.querySelector('.front').classList.add('hidden');
+        card.querySelector('.back').classList.remove('hidden');
+        card.classList.add('border-blue-400');
+        flipped.push({ idx, item: card.dataset.item, el: card });
+
+        if (flipped.length === 2) {
+            locked = true;
+            setTimeout(() => {
+                if (flipped[0].item === flipped[1].item) {
+                    flipped.forEach(f => { f.el.classList.add('matched','opacity-60','cursor-default'); f.el.classList.remove('border-blue-400'); f.el.classList.add('border-green-400'); });
+                    matched++;
+                    memScore += 10;
+                    document.getElementById('memScore').textContent = memScore;
+                    if (matched === cfg.pairs) {
+                        totalPoints += memScore;
+                        localStorage.setItem('reevox_learn_pts', totalPoints);
+                        document.getElementById('totalScore').textContent = '⭐ ' + totalPoints + ' pts';
+                        document.getElementById('memWin').classList.remove('hidden');
+                    }
+                } else {
+                    flipped.forEach(f => {
+                        f.el.querySelector('.front').classList.remove('hidden');
+                        f.el.querySelector('.back').classList.add('hidden');
+                        f.el.classList.remove('border-blue-400');
+                    });
+                }
+                flipped = [];
+                locked  = false;
+            }, 900);
+        }
+    };
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+
+document.getElementById('totalScore').textContent = '⭐ ' + totalPoints + ' pts';
+const user = localStorage.getItem('reevox_user');
+if (user) document.getElementById('userDisplay').textContent = '👤 ' + user;
+// Style catégorie active au démarrage
+document.querySelector('.cat-btn').className = 'cat-btn active-cat px-5 py-2 rounded-full font-semibold text-sm transition-all border bg-blue-500/20 border-blue-500 text-blue-300 font-bold';
+
+</script>
+
+<script>
+    (function() {
+        const user   = localStorage.getItem('reevox_user');
+        const expiry = localStorage.getItem('reevox_subscription_expiry');
+        if (!user || !expiry || parseInt(expiry) < Date.now()) {
+            window.location.href = 'paiement.html';
+        }
+    })();
+</script>
+
+<script src="reevox-mini-player.js"></script>
+
+
+
+</body>
+</html>

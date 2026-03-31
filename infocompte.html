@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reevox - Mon Compte</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000814;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+
+    <header class="backdrop-blur-xl bg-black/70 border-b border-cyan-500/20 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="backdrop-blur-lg bg-white/5 border border-cyan-400/30 px-4 py-2 rounded-xl text-cyan-400 hover:bg-white/10 transition-all">
+                    ← Retour
+                </a>
+                <img src="IMG_7957.png" class="h-10" alt="Reevox">
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="compterivox.html" class="backdrop-blur-lg bg-white/5 border border-cyan-400/30 px-4 py-2 rounded-xl text-cyan-400 hover:bg-white/10 transition-all">
+                    👤 Mon Profil
+                </a>
+                <span id="currentUser" class="text-cyan-400"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-12">
+
+        <!-- TITRE -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                ⚙️ Mon Compte
+            </h1>
+            <p class="text-gray-400">Gérer mon abonnement et mes informations</p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+
+            <!-- COLONNE GAUCHE : INFO PROFIL -->
+            <div class="lg:col-span-1">
+                <div class="backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-3xl p-8 text-center sticky top-24">
+                    <img id="profilePhoto" src="" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-yellow-500 object-cover">
+                    <h2 id="profileUsername" class="text-2xl font-bold text-yellow-400 mb-2"></h2>
+                    <p id="profileEmail" class="text-sm text-gray-400 mb-4"></p>
+                    
+                    <!-- Status Badge -->
+                    <div id="statusBadge" class="inline-flex items-center gap-2 bg-green-500/20 border border-green-500 px-4 py-2 rounded-full mb-4">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-green-400 font-bold text-sm">ABONNEMENT ACTIF</span>
+                    </div>
+
+                    <div class="bg-black/30 rounded-xl p-4 text-left space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">📅 Inscrit le</span>
+                            <span id="joinDate" class="font-bold"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">🏆 Score total</span>
+                            <span id="totalScore" class="font-bold text-yellow-400"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">🎮 Jeux joués</span>
+                            <span id="gamesPlayed" class="font-bold"></span>
+                        </div>
+                    </div>
+
+                    <button onclick="logout()" class="w-full mt-6 bg-red-500/20 border border-red-500/50 py-3 rounded-xl hover:bg-red-500/30 transition-all font-bold">
+                        🚪 Déconnexion
+                    </button>
+                </div>
+            </div>
+
+            <!-- COLONNE DROITE : ABONNEMENT & PARAMÈTRES -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- ABONNEMENT ACTUEL -->
+                <div class="backdrop-blur-xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-3xl p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-yellow-400">⭐ Mon Abonnement</h3>
+                        <span id="planBadge" class="bg-yellow-500/20 border border-yellow-500 px-4 py-2 rounded-full font-bold text-sm"></span>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-black/30 rounded-xl p-4">
+                            <p class="text-sm text-gray-400 mb-1">💰 Prix</p>
+                            <p id="subscriptionPrice" class="text-2xl font-bold text-yellow-400"></p>
+                        </div>
+                        <div class="bg-black/30 rounded-xl p-4">
+                            <p class="text-sm text-gray-400 mb-1">💳 Méthode</p>
+                            <p id="paymentMethod" class="text-2xl font-bold"></p>
+                        </div>
+                        <div class="bg-black/30 rounded-xl p-4">
+                            <p class="text-sm text-gray-400 mb-1">📅 Début</p>
+                            <p id="startDate" class="text-lg font-bold"></p>
+                        </div>
+                        <div class="bg-black/30 rounded-xl p-4">
+                            <p class="text-sm text-gray-400 mb-1">⏰ Expiration</p>
+                            <p id="expiryDate" class="text-lg font-bold text-red-400"></p>
+                        </div>
+                    </div>
+
+                    <!-- Temps restant -->
+                    <div class="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500 rounded-xl p-6 mb-4">
+                        <div class="text-center">
+                            <p class="text-sm text-gray-300 mb-2">Temps restant sur ton abonnement</p>
+                            <p id="timeRemaining" class="text-4xl font-bold text-yellow-400 mb-2"></p>
+                            <div class="w-full bg-black/30 rounded-full h-3 overflow-hidden">
+                                <div id="progressBar" class="bg-gradient-to-r from-yellow-500 to-orange-500 h-full transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Renouvellement -->
+                    <div class="flex items-center justify-between bg-black/30 rounded-xl p-4 mb-4">
+                        <div>
+                            <p class="font-bold">🔄 Renouvellement automatique</p>
+                            <p class="text-xs text-gray-400">Ton abonnement se renouvelle automatiquement</p>
+                        </div>
+                        <div id="autoRenewStatus" class="text-green-400 font-bold text-sm">✓ ACTIF</div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <button onclick="upgradeSubscription()" class="bg-gradient-to-r from-yellow-600 to-orange-600 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-yellow-500/50 transition-all">
+                            ⬆️ Passer à l'Annuel
+                        </button>
+                        <button onclick="cancelSubscription()" class="bg-red-500/20 border border-red-500/50 py-3 rounded-xl hover:bg-red-500/30 transition-all font-bold">
+                            ❌ Résilier
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MODIFIER LE PROFIL -->
+                <div class="backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-3xl p-8">
+                    <h3 class="text-2xl font-bold text-cyan-400 mb-6">✏️ Modifier mon Profil</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">👤 Pseudo</label>
+                            <input type="text" id="editUsername" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">📧 Email</label>
+                            <input type="email" id="editEmail" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">📸 Photo de profil (URL)</label>
+                            <input type="url" id="editPhoto" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">🔑 Mot de passe actuel (pour confirmer)</label>
+                            <input type="password" id="confirmPassword" placeholder="Entre ton mot de passe actuel" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none">
+                        </div>
+
+                        <button onclick="saveProfile()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
+                            💾 Sauvegarder les modifications
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHANGER MOT DE PASSE -->
+                <div class="backdrop-blur-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-3xl p-8">
+                    <h3 class="text-2xl font-bold text-purple-400 mb-6">🔐 Changer le Mot de Passe</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">Mot de passe actuel</label>
+                            <input type="password" id="currentPassword" class="w-full bg-black/30 border border-purple-500/30 rounded-lg px-4 py-3 focus:border-purple-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">Nouveau mot de passe</label>
+                            <input type="password" id="newPassword" class="w-full bg-black/30 border border-purple-500/30 rounded-lg px-4 py-3 focus:border-purple-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">Confirmer le nouveau mot de passe</label>
+                            <input type="password" id="confirmNewPassword" class="w-full bg-black/30 border border-purple-500/30 rounded-lg px-4 py-3 focus:border-purple-500 focus:outline-none">
+                        </div>
+
+                        <button onclick="changePassword()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/50 transition-all">
+                            🔒 Changer le mot de passe
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HISTORIQUE DE PAIEMENT -->
+                <div class="backdrop-blur-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-3xl p-8">
+                    <h3 class="text-2xl font-bold text-green-400 mb-6">📜 Historique des Paiements</h3>
+                    
+                    <div id="paymentHistory" class="space-y-3">
+                        <!-- Payments will be listed here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0kJQP62qnj1K_duIgLXMqtkozfs9PifA",
+            authDomain: "reevox-gamehub.firebaseapp.com",
+            databaseURL: "https://reevox-gamehub-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "reevox-gamehub",
+            storageBucket: "reevox-gamehub.firebasestorage.app",
+            messagingSenderId: "977802762477",
+            appId: "1:977802762477:web:edac4a5eb4cd92fa6694e4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let currentUser = localStorage.getItem('reevox_user');
+        let currentUserKey = null;
+        let currentUserData = null;
+
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        loadUserData();
+
+        async function loadUserData() {
+            try {
+                const snapshot = await get(ref(database, 'users'));
+                
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (user.username === currentUser) {
+                        currentUserKey = child.key;
+                        currentUserData = user;
+                    }
+                });
+
+                if (!currentUserData) {
+                    alert('❌ Utilisateur introuvable');
+                    localStorage.removeItem('reevox_user');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Check subscription validity
+                const sub = currentUserData.subscription;
+                if (!sub || sub.status !== 'active' || sub.expiryDate < Date.now()) {
+                    alert('⚠️ Ton abonnement a expiré. Renouvelle-le pour continuer.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                displayUserInfo();
+                displaySubscriptionInfo();
+                updateTimeRemaining();
+                setInterval(updateTimeRemaining, 1000);
+
+            } catch (error) {
+                console.error(error);
+                alert('❌ Erreur: ' + error.message);
+            }
+        }
+
+        function displayUserInfo() {
+            document.getElementById('currentUser').textContent = '👤 ' + currentUser;
+            document.getElementById('profilePhoto').src = currentUserData.photo;
+            document.getElementById('profileUsername').textContent = currentUserData.username;
+            document.getElementById('profileEmail').textContent = currentUserData.email;
+            document.getElementById('joinDate').textContent = new Date(currentUserData.joinDate).toLocaleDateString('fr-FR');
+            document.getElementById('totalScore').textContent = (currentUserData.totalScore || 0).toLocaleString() + ' pts';
+            document.getElementById('gamesPlayed').textContent = Object.keys(currentUserData.scores || {}).length;
+
+            // Fill edit fields
+            document.getElementById('editUsername').value = currentUserData.username;
+            document.getElementById('editEmail').value = currentUserData.email;
+            document.getElementById('editPhoto').value = currentUserData.photo;
+        }
+
+        function displaySubscriptionInfo() {
+            const sub = currentUserData.subscription;
+            
+            const planText = sub.plan === 'monthly' ? 'MENSUEL' : 'ANNUEL';
+            const priceText = sub.plan === 'monthly' ? '5€/mois' : '50€/an';
+            
+            document.getElementById('planBadge').textContent = '⭐ ' + planText;
+            document.getElementById('subscriptionPrice').textContent = priceText;
+            
+            const methodEmoji = sub.paymentMethod === 'paypal' ? '💙' : '💳';
+            const methodText = sub.paymentMethod === 'paypal' ? 'PayPal' : 'Carte';
+            document.getElementById('paymentMethod').textContent = methodEmoji + ' ' + methodText;
+            
+            document.getElementById('startDate').textContent = new Date(sub.startDate).toLocaleDateString('fr-FR');
+            document.getElementById('expiryDate').textContent = new Date(sub.expiryDate).toLocaleDateString('fr-FR');
+
+            // Payment history
+            const historyDiv = document.getElementById('paymentHistory');
+            historyDiv.innerHTML = `
+                <div class="bg-black/30 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="font-bold">${methodEmoji} ${methodText}</p>
+                        <p class="text-sm text-gray-400">${new Date(sub.startDate).toLocaleDateString('fr-FR')}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-green-400">${sub.price}€</p>
+                        <p class="text-xs text-gray-400">✓ Payé</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateTimeRemaining() {
+            const sub = currentUserData.subscription;
+            const now = Date.now();
+            const remaining = sub.expiryDate - now;
+
+            if (remaining <= 0) {
+                document.getElementById('timeRemaining').textContent = 'EXPIRÉ';
+                document.getElementById('statusBadge').innerHTML = `
+                    <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                    <span class="text-red-400 font-bold text-sm">EXPIRÉ</span>
+                `;
+                return;
+            }
+
+            const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            document.getElementById('timeRemaining').textContent = `${days} jours ${hours}h`;
+
+            // Progress bar
+            const totalDuration = sub.plan === 'monthly' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000;
+            const elapsed = now - sub.startDate;
+            const progress = Math.min(100, (elapsed / totalDuration) * 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        window.saveProfile = async function() {
+            const newUsername = document.getElementById('editUsername').value.trim();
+            const newEmail = document.getElementById('editEmail').value.trim();
+            const newPhoto = document.getElementById('editPhoto').value.trim();
+            const password = document.getElementById('confirmPassword').value.trim();
+
+            if (!newUsername || !newEmail) {
+                alert('⚠️ Pseudo et email obligatoires');
+                return;
+            }
+
+            if (!password) {
+                alert('⚠️ Entre ton mot de passe actuel pour confirmer');
+                return;
+            }
+
+            if (password !== currentUserData.password) {
+                alert('❌ Mot de passe incorrect');
+                return;
+            }
+
+            try {
+                await update(ref(database, `users/${currentUserKey}`), {
+                    username: newUsername,
+                    email: newEmail,
+                    photo: newPhoto
+                });
+
+                localStorage.setItem('reevox_user', newUsername);
+                alert('✅ Profil mis à jour !');
+                location.reload();
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        };
+
+        window.changePassword = async function() {
+            const current = document.getElementById('currentPassword').value.trim();
+            const newPass = document.getElementById('newPassword').value.trim();
+            const confirm = document.getElementById('confirmNewPassword').value.trim();
+
+            if (!current || !newPass || !confirm) {
+                alert('⚠️ Remplis tous les champs');
+                return;
+            }
+
+            if (current !== currentUserData.password) {
+                alert('❌ Mot de passe actuel incorrect');
+                return;
+            }
+
+            if (newPass.length < 4) {
+                alert('⚠️ Nouveau mot de passe trop court (min 4)');
+                return;
+            }
+
+            if (newPass !== confirm) {
+                alert('❌ Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            try {
+                await update(ref(database, `users/${currentUserKey}`), { password: newPass });
+                alert('✅ Mot de passe changé !');
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        };
+
+        window.upgradeSubscription = function() {
+            if (currentUserData.subscription.plan === 'yearly') {
+                alert('ℹ️ Tu es déjà sur l\'abonnement annuel !');
+                return;
+            }
+            
+            if (confirm('⬆️ Passer à l\'abonnement annuel (50€/an) ?\n\nÉconomise 10€ par an !')) {
+                alert('💳 Redirection vers le paiement...\n\n(Fonctionnalité à implémenter avec Stripe/PayPal)');
+            }
+        };
+
+        window.cancelSubscription = async function() {
+            if (!confirm('⚠️ ES-TU SÛR de vouloir résilier ton abonnement ?\n\n❌ Tu perdras IMMÉDIATEMENT l\'accès à Reevox\n❌ Tous tes scores et données seront conservés\n❌ Tu devras te réabonner pour revenir\n\nTape "RESILIER" pour confirmer')) {
+                return;
+            }
+
+            const confirmText = prompt('⚠️ DERNIÈRE CONFIRMATION\n\nTape exactement le mot "RESILIER" pour confirmer la résiliation :');
+            
+            if (confirmText !== 'RESILIER') {
+                alert('❌ Résiliation annulée');
+                return;
+            }
+
+            try {
+                // Désactiver l'abonnement dans Firebase
+                await update(ref(database, `users/${currentUserKey}/subscription`), {
+                    status: 'cancelled',
+                    cancelledDate: Date.now(),
+                    expiryDate: Date.now(), // Expiration immédiate
+                    autoRenew: false
+                });
+
+                alert('✅ Abonnement résilié.\n\nTu vas être déconnecté dans 3 secondes...');
+                
+                // Nettoyer et rediriger
+                setTimeout(() => {
+                    localStorage.removeItem('reevox_user');
+                    localStorage.removeItem('reevox_subscription_expiry');
+                    window.location.href = 'login.html';
+                }, 3000);
+
+            } catch (error) {
+                alert('❌ Erreur lors de la résiliation: ' + error.message);
+            }
+        };
+
+        window.logout = function() {
+            if (confirm('Veux-tu vraiment te déconnecter ?')) {
+                localStorage.removeItem('reevox_user');
+                localStorage.removeItem('reevox_subscription_expiry');
+                window.location.href = 'index.html';
+            }
+        };
+    </script>
+
+
+<script>
+    (function() {
+        const user   = localStorage.getItem('reevox_user');
+        const expiry = localStorage.getItem('reevox_subscription_expiry');
+        if (!user || !expiry || parseInt(expiry) < Date.now()) {
+            window.location.href = 'paiement.html';
+        }
+    })();
+</script>
+
+
+<script src="reevox-mini-player.js"></script>
+
+
+</body>
+</html>

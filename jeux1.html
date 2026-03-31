@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Page Jeu Vidéo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #e63946;
+            --red-glow: rgba(230, 57, 70, 0.6);
+            --dark: #000814;
+            --glass: rgba(255,255,255,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--dark);
+            font-family: 'Rajdhani', sans-serif;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(45%) saturate(1.2);
+            transform: scale(1.05);
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            from { transform: scale(1.05); }
+            to   { transform: scale(1.12); }
+        }
+
+        /* Dégradé bas */
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                transparent 30%,
+                rgba(0,8,20,0.6) 70%,
+                var(--dark) 100%
+            );
+            pointer-events: none;
+        }
+
+        /* Lignes scan */
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.08) 2px,
+                rgba(0,0,0,0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ── CONTENU HERO ── */
+        .hero-content {
+            position: absolute;
+            bottom: 12%;
+            left: 6%;
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        .game-tag {
+            display: inline-block;
+            background: var(--red);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .game-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(4rem, 10vw, 8rem);
+            line-height: 0.9;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 60px rgba(230,57,70,0.4), 0 4px 20px rgba(0,0,0,0.8);
+            margin-bottom: 20px;
+            animation: titleReveal 1s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes titleReveal {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-desc {
+            font-size: 15px;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.6;
+            margin-bottom: 32px;
+            max-width: 420px;
+            animation: titleReveal 1s 0.2s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        /* ── BOUTONS ── */
+        .btn-group {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            animation: titleReveal 1s 0.4s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover::before { transform: translateX(0); }
+
+        .btn-play {
+            background: var(--red);
+            color: white;
+            box-shadow: 0 4px 30px var(--red-glow);
+        }
+
+        .btn-play:hover {
+            background: #ff4757;
+            box-shadow: 0 6px 40px var(--red-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn-trailer {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-trailer:hover {
+            background: rgba(255,255,255,0.18);
+            border-color: rgba(255,255,255,0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Icônes SVG dans les boutons */
+        .btn svg { flex-shrink: 0; }
+
+        /* ── STATS RAPIDES ── */
+        .stats {
+            position: absolute;
+            bottom: 12%;
+            right: 6%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: right;
+            animation: titleReveal 1s 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            color: var(--red);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ── MODAL TRAILER ── */
+        #trailerModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        #trailerModal.open { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .modal-inner {
+            position: relative;
+            width: 90%;
+            max-width: 960px;
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.92); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+
+        /* Coins décoratifs */
+        .modal-inner::before,
+        .modal-inner::after {
+            content: '';
+            position: absolute;
+            width: 24px; height: 24px;
+            border-color: var(--red);
+            border-style: solid;
+            z-index: 2;
+        }
+        .modal-inner::before {
+            top: -6px; left: -6px;
+            border-width: 3px 0 0 3px;
+        }
+        .modal-inner::after {
+            bottom: -6px; right: -6px;
+            border-width: 0 3px 3px 0;
+        }
+
+        /* Player wrapper */
+        .video-wrapper {
+            position: relative;
+            border: 1px solid rgba(230,57,70,0.3);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 60px rgba(230,57,70,0.2), 0 30px 80px rgba(0,0,0,0.8);
+        }
+
+        #trailerVideo {
+            width: 100%;
+            display: block;
+            border-radius: 6px;
+        }
+
+        /* Titre dans le modal */
+        .modal-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 4px;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        /* Bouton fermer */
+        .close-btn {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .close-btn:hover { opacity: 1; }
+
+        /* Fermer en cliquant dehors */
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+        }
+
+        /* ── SCROLL INDICATOR ── */
+        .scroll-hint {
+            position: absolute;
+            bottom: 3%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.4;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50%       { transform: translateX(-50%) translateY(6px); }
+        }
+
+        .scroll-hint span {
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .stats { display: none; }
+            .hero-content { left: 4%; right: 4%; bottom: 15%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+    <img src="Capture d’écran 2026-02-15 200634.png" class="hero-img" alt="Snake">
+
+    <!-- Contenu gauche -->
+    <div class="hero-content">
+        <span class="game-tag">🎮 Jeu disponible</span>
+        <h1 class="game-title">Snake</h1>
+        <p class="game-desc">
+            Le classique revisité. Mange, grandis, survie.<br>
+            Jusqu'où iras-tu ?
+        </p>
+        <div class="btn-group">
+            <button class="btn btn-play" onclick="location.href='page1.html'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                Jouer maintenant
+            </button>
+            <button class="btn btn-trailer" onclick="openTrailer()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
+                Voir le trailer
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats droite -->
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-value">5 MIN</span>
+            <span class="stat-label">Durée moyenne</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">PC</span>
+            <span class="stat-label">Plateforme</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">∞</span>
+            <span class="stat-label">Rejouabilité</span>
+        </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        <span>Scroll</span>
+    </div>
+</div>
+
+<!-- ── MODAL TRAILER ── -->
+<div id="trailerModal">
+    <div class="modal-backdrop" onclick="closeTrailer()"></div>
+    <div class="modal-inner">
+        <button class="close-btn" onclick="closeTrailer()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            Fermer
+        </button>
+        <p class="modal-title">🎬 Trailer — Snake</p>
+        <div class="video-wrapper">
+            <video id="trailerVideo" controls controlsList="nodownload">
+                <source src="Enregistrement 2026-02-16 103050.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openTrailer() {
+        const modal = document.getElementById("trailerModal");
+        modal.classList.add("open");
+        modal.style.display = "flex";
+        document.getElementById("trailerVideo").play();
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeTrailer() {
+        const modal = document.getElementById("trailerModal");
+        modal.style.display = "none";
+        modal.classList.remove("open");
+        const video = document.getElementById("trailerVideo");
+        video.pause();
+        video.currentTime = 0;
+        document.body.style.overflow = "";
+    }
+
+    // Fermer avec Echap
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") closeTrailer();
+    });
+</script>
+
+
+
+<script>
+    (function() {
+        const user   = localStorage.getItem('reevox_user');
+        const expiry = localStorage.getItem('reevox_subscription_expiry');
+        if (!user || !expiry || parseInt(expiry) < Date.now()) {
+            window.location.href = 'paiement.html';
+        }
+    })();
+</script>
+
+<script src="reevox-mini-player.js"></script>
+
+
+
+</body>
+</html>

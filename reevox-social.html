@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reevox Social - Réseau Social</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            background-attachment: fixed;
+        }
+        
+        .post-card {
+            transition: all 0.3s;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.3);
+        }
+        
+        /* FORCER TEXTE BLANC DANS LES POSTS */
+        .post-card p,
+        .post-card h3,
+        .post-card h4,
+        .post-card span,
+        .post-card div {
+            color: white !important;
+        }
+        
+        /* Exceptions pour les icônes colorées */
+        .post-card .text-purple-300 {
+            color: rgb(216, 180, 254) !important;
+        }
+        
+        .post-card .text-red-400,
+        .post-card .text-red-500 {
+            color: rgb(248, 113, 113) !important;
+        }
+        
+        .post-card .text-green-500 {
+            color: rgb(34, 197, 94) !important;
+        }
+        
+        .like-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen pb-32">
+
+    <!-- Notifications -->
+    <div id="notifications" class="fixed top-6 right-6 z-[100] space-y-3"></div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-purple-900/80 to-pink-900/80 backdrop-blur-xl border-b border-purple-500/30 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition-all font-bold">
+                        ← Retour
+                    </a>
+                    <h1 class="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        REEVOX SOCIAL
+                    </h1>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-xl">
+                        <img id="userAvatar" src="" class="w-10 h-10 rounded-full" onerror="this.src='https://via.placeholder.com/150/a855f7/ffffff?text=U'">
+                        <span id="userDisplay" class="font-bold"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Colonne gauche - Créer un post -->
+            <div class="lg:col-span-1">
+                <div class="bg-gradient-to-br from-purple-900/50 to-pink-900/50 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sticky top-24">
+                    <h2 class="text-2xl font-black mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        ✨ Nouveau Post
+                    </h2>
+
+                    <!-- Type de post -->
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="setPostType('text')" id="btnText" class="flex-1 py-2 rounded-lg bg-purple-500/30 border border-purple-500 font-bold">
+                            📝 Texte
+                        </button>
+                        <button onclick="setPostType('photo')" id="btnPhoto" class="flex-1 py-2 rounded-lg bg-white/5 border border-white/20 font-bold">
+                            📷 Photo
+                        </button>
+                        <button onclick="setPostType('video')" id="btnVideo" class="flex-1 py-2 rounded-lg bg-white/5 border border-white/20 font-bold">
+                            🎬 Vidéo
+                        </button>
+                        <button onclick="setPostType('score')" id="btnScore" class="flex-1 py-2 rounded-lg bg-white/5 border border-white/20 font-bold">
+                            🏆 Score
+                        </button>
+                    </div>
+
+                    <!-- Contenu texte -->
+                    <textarea id="postContent" placeholder="Quoi de neuf ?" class="w-full bg-black/30 border border-purple-500/30 rounded-xl px-4 py-3 mb-4 focus:outline-none focus:border-purple-500 resize-none" rows="4"></textarea>
+
+                    <!-- Photo URL -->
+                    <div id="photoInput" class="hidden mb-4">
+                        <input type="url" id="photoUrl" placeholder="URL de la photo" class="w-full bg-black/30 border border-purple-500/30 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                    </div>
+
+                    <!-- Video URL -->
+                    <div id="videoInput" class="hidden mb-4">
+                        <input type="url" id="videoUrl" placeholder="URL YouTube, TikTok ou autre" class="w-full bg-black/30 border border-purple-500/30 rounded-xl px-4 py-3 mb-2 focus:outline-none focus:border-purple-500">
+                        <p class="text-xs text-purple-400">YouTube, TikTok, ou lien vidéo direct</p>
+                    </div>
+
+                    <!-- Score -->
+                    <div id="scoreInput" class="hidden mb-4 space-y-3">
+                        <input type="text" id="scoreGame" placeholder="Nom du jeu" class="w-full bg-black/30 border border-purple-500/30 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                        <input type="number" id="scoreValue" placeholder="Score" class="w-full bg-black/30 border border-purple-500/30 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                    </div>
+
+                    <button onclick="createPost()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/50 transition-all">
+                        🚀 Publier
+                    </button>
+                </div>
+            </div>
+
+            <!-- Colonne centrale - Feed -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        📰 Fil d'actualité
+                    </h2>
+                    <select id="filterPosts" onchange="filterPosts()" class="bg-purple-900/80 border border-purple-500/50 rounded-xl px-4 py-2 focus:outline-none text-white font-bold cursor-pointer hover:bg-purple-800/80" style="color: white;">
+                        <option value="all" style="background: #581c87; color: white;">Tous les posts</option>
+                        <option value="text" style="background: #581c87; color: white;">Textes</option>
+                        <option value="photo" style="background: #581c87; color: white;">Photos</option>
+                        <option value="video" style="background: #581c87; color: white;">Vidéos</option>
+                        <option value="score" style="background: #581c87; color: white;">Scores</option>
+                    </select>
+                </div>
+
+                <div id="postsContainer" class="space-y-6">
+                    <!-- Posts ici -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Commentaires -->
+    <div id="commentsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+        <div class="bg-gradient-to-br from-purple-900/95 to-pink-900/95 backdrop-blur-xl border border-purple-500/50 rounded-3xl p-8 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-black">💬 Commentaires</h2>
+                <button onclick="closeComments()" class="text-purple-300 hover:text-white text-2xl">✕</button>
+            </div>
+
+            <!-- Ajouter un commentaire -->
+            <div class="mb-6">
+                <textarea id="commentInput" placeholder="Ajouter un commentaire..." class="w-full bg-black/30 border border-purple-500/30 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 resize-none" rows="3"></textarea>
+                <button onclick="addComment()" class="mt-3 bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2 rounded-xl font-bold">
+                    Commenter
+                </button>
+            </div>
+
+            <!-- Liste des commentaires -->
+            <div id="commentsList" class="space-y-4">
+                <!-- Commentaires ici -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, get, onValue, remove, update, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0kJQP62qnj1K_duIgLXMqtkozfs9PifA",
+            authDomain: "reevox-gamehub.firebaseapp.com",
+            databaseURL: "https://reevox-gamehub-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "reevox-gamehub",
+            storageBucket: "reevox-gamehub.firebasestorage.app",
+            messagingSenderId: "977802762477",
+            appId: "1:977802762477:web:edac4a5eb4cd92fa6694e4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let currentUser = localStorage.getItem('reevox_user');
+        let currentPostType = 'text';
+        let allPosts = [];
+        let currentPostId = null;
+
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('userDisplay').textContent = currentUser;
+            loadUserPhoto();
+            loadPosts();
+        }
+
+        // Charger photo utilisateur
+        async function loadUserPhoto() {
+            const snapshot = await get(ref(database, 'users'));
+            snapshot.forEach((child) => {
+                const user = child.val();
+                if (user.username === currentUser) {
+                    document.getElementById('userAvatar').src = user.photo || 'https://via.placeholder.com/150/a855f7/ffffff?text=U';
+                }
+            });
+        }
+
+        // Type de post
+        window.setPostType = function(type) {
+            currentPostType = type;
+            
+            // Reset buttons
+            ['btnText', 'btnPhoto', 'btnVideo', 'btnScore'].forEach(id => {
+                document.getElementById(id).className = 'flex-1 py-2 rounded-lg bg-white/5 border border-white/20 font-bold';
+            });
+            
+            // Highlight selected
+            const btnId = 'btn' + type.charAt(0).toUpperCase() + type.slice(1);
+            document.getElementById(btnId).className = 'flex-1 py-2 rounded-lg bg-purple-500/30 border border-purple-500 font-bold';
+            
+            // Show/hide inputs
+            document.getElementById('photoInput').classList.toggle('hidden', type !== 'photo');
+            document.getElementById('videoInput').classList.toggle('hidden', type !== 'video');
+            document.getElementById('scoreInput').classList.toggle('hidden', type !== 'score');
+        };
+
+        // Créer un post
+        window.createPost = async function() {
+            const content = document.getElementById('postContent').value.trim();
+            
+            if (!content && currentPostType === 'text') {
+                showNotification('⚠️ Écris quelque chose !', 'error');
+                return;
+            }
+
+            let postData = {
+                author: currentUser,
+                content: content,
+                type: currentPostType,
+                timestamp: Date.now(),
+                likes: 0,
+                likedBy: {},
+                comments: {},
+                reposts: 0,
+                repostedBy: {}
+            };
+
+            // Photo
+            if (currentPostType === 'photo') {
+                const photoUrl = document.getElementById('photoUrl').value.trim();
+                if (!photoUrl) {
+                    showNotification('⚠️ Ajoute une URL de photo !', 'error');
+                    return;
+                }
+                postData.photoUrl = photoUrl;
+            }
+
+            // Video
+            if (currentPostType === 'video') {
+                const videoUrl = document.getElementById('videoUrl').value.trim();
+                if (!videoUrl) {
+                    showNotification('⚠️ Ajoute une URL de vidéo !', 'error');
+                    return;
+                }
+                postData.videoUrl = convertVideoUrl(videoUrl);
+            }
+
+            // Score
+            if (currentPostType === 'score') {
+                const game = document.getElementById('scoreGame').value.trim();
+                const score = document.getElementById('scoreValue').value.trim();
+                if (!game || !score) {
+                    showNotification('⚠️ Remplis le jeu et le score !', 'error');
+                    return;
+                }
+                postData.game = game;
+                postData.score = parseInt(score);
+            }
+
+            await push(ref(database, 'social/posts'), postData);
+            
+            // Reset
+            document.getElementById('postContent').value = '';
+            document.getElementById('photoUrl').value = '';
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('scoreGame').value = '';
+            document.getElementById('scoreValue').value = '';
+            
+            showNotification('✅ Post publié !', 'success');
+        };
+
+        // Convertir URL vidéo (YouTube, TikTok)
+        function convertVideoUrl(url) {
+            // YouTube
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                const videoId = url.includes('youtu.be') 
+                    ? url.split('/').pop().split('?')[0]
+                    : new URLSearchParams(new URL(url).search).get('v');
+                return `https://www.youtube.com/embed/${videoId}`;
+            }
+            
+            // TikTok
+            if (url.includes('tiktok.com')) {
+                const videoId = url.split('/video/')[1]?.split('?')[0];
+                return `https://www.tiktok.com/embed/v2/${videoId}`;
+            }
+            
+            return url;
+        }
+
+        // Charger les posts
+        function loadPosts() {
+            onValue(ref(database, 'social/posts'), (snapshot) => {
+                allPosts = [];
+                snapshot.forEach((child) => {
+                    allPosts.push({ id: child.key, ...child.val() });
+                });
+                
+                allPosts.sort((a, b) => b.timestamp - a.timestamp);
+                displayPosts(allPosts);
+            });
+        }
+
+        // Afficher les posts
+        function displayPosts(posts) {
+            const container = document.getElementById('postsContainer');
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<p class="text-center text-purple-300 py-20">Aucun post pour le moment</p>';
+                return;
+            }
+
+            container.innerHTML = posts.map(post => createPostCard(post)).join('');
+        }
+
+        // Créer une card de post
+        function createPostCard(post) {
+            const commentsCount = post.comments ? Object.keys(post.comments).length : 0;
+            const isLiked = post.likedBy && post.likedBy[currentUser];
+            const isReposted = post.repostedBy && post.repostedBy[currentUser];
+
+            let mediaHtml = '';
+            
+            if (post.type === 'photo') {
+                mediaHtml = `<img src="${post.photoUrl}" class="w-full rounded-xl mt-4" onerror="this.src='https://via.placeholder.com/600x400/a855f7/ffffff?text=Image'">`;
+            }
+            
+            if (post.type === 'video') {
+                mediaHtml = `
+                    <div class="video-container mt-4 rounded-xl overflow-hidden">
+                        <iframe src="${post.videoUrl}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                `;
+            }
+            
+            if (post.type === 'score') {
+                mediaHtml = `
+                    <div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500 rounded-xl p-6 mt-4">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🏆</div>
+                            <h3 class="text-2xl font-bold mb-2 text-white">${post.game}</h3>
+                            <p class="text-4xl font-black bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                                ${post.score.toLocaleString()} points
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="post-card bg-gradient-to-br from-purple-900/50 to-pink-900/50 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center font-bold text-white">
+                            ${post.author.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-bold text-lg text-white">${post.author}</h3>
+                                    <p class="text-sm text-purple-300">${getTimeAgo(post.timestamp)}</p>
+                                </div>
+                                ${post.author === currentUser ? `
+                                    <button onclick="deletePost('${post.id}')" class="text-red-400 hover:text-red-300">
+                                        🗑️
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${post.content ? `<p class="text-white text-lg mb-4 leading-relaxed">${post.content}</p>` : ''}
+                    ${mediaHtml}
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-6 mt-6 pt-4 border-t border-purple-500/30">
+                        <button onclick="toggleLike('${post.id}')" class="flex items-center gap-2 like-btn transition-all ${isLiked ? 'text-red-500' : 'text-purple-300'} hover:text-red-500 font-bold">
+                            ${isLiked ? '❤️' : '🤍'} <span class="text-white">${post.likes || 0}</span>
+                        </button>
+                        
+                        <button onclick="openComments('${post.id}')" class="flex items-center gap-2 text-purple-300 hover:text-purple-100 transition-all font-bold">
+                            💬 <span class="text-white">${commentsCount}</span>
+                        </button>
+                        
+                        <button onclick="toggleRepost('${post.id}')" class="flex items-center gap-2 transition-all ${isReposted ? 'text-green-500' : 'text-purple-300'} hover:text-green-500 font-bold">
+                            🔁 <span class="text-white">${post.reposts || 0}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Like
+        window.toggleLike = async function(postId) {
+            if (!currentUser) {
+                showNotification('⚠️ Connecte-toi pour liker !', 'error');
+                return;
+            }
+
+            try {
+                const postRef = ref(database, `social/posts/${postId}`);
+                const snapshot = await get(postRef);
+                
+                if (!snapshot.exists()) {
+                    showNotification('❌ Post introuvable', 'error');
+                    return;
+                }
+                
+                const post = snapshot.val();
+                const likedBy = post.likedBy || {};
+                const isLiked = likedBy[currentUser];
+
+                if (isLiked) {
+                    delete likedBy[currentUser];
+                    await update(postRef, {
+                        likes: Math.max(0, (post.likes || 1) - 1),
+                        likedBy
+                    });
+                } else {
+                    likedBy[currentUser] = true;
+                    await update(postRef, {
+                        likes: (post.likes || 0) + 1,
+                        likedBy
+                    });
+                    showNotification('❤️ Post liké !', 'success');
+                }
+            } catch (error) {
+                console.error('Erreur like:', error);
+                showNotification('❌ Erreur: ' + error.message, 'error');
+            }
+        };
+
+        // Repost
+        window.toggleRepost = async function(postId) {
+            if (!currentUser) {
+                showNotification('⚠️ Connecte-toi pour reposter !', 'error');
+                return;
+            }
+
+            try {
+                const postRef = ref(database, `social/posts/${postId}`);
+                const snapshot = await get(postRef);
+                
+                if (!snapshot.exists()) {
+                    showNotification('❌ Post introuvable', 'error');
+                    return;
+                }
+                
+                const post = snapshot.val();
+                const repostedBy = post.repostedBy || {};
+                const isReposted = repostedBy[currentUser];
+
+                if (isReposted) {
+                    delete repostedBy[currentUser];
+                    await update(postRef, {
+                        reposts: Math.max(0, (post.reposts || 1) - 1),
+                        repostedBy
+                    });
+                    showNotification('↩️ Repost annulé', 'info');
+                } else {
+                    repostedBy[currentUser] = true;
+                    await update(postRef, {
+                        reposts: (post.reposts || 0) + 1,
+                        repostedBy
+                    });
+                    showNotification('✅ Post repartagé !', 'success');
+                }
+            } catch (error) {
+                console.error('Erreur repost:', error);
+                showNotification('❌ Erreur: ' + error.message, 'error');
+            }
+        };
+
+        // Commentaires
+        window.openComments = async function(postId) {
+            currentPostId = postId;
+            document.getElementById('commentsModal').classList.remove('hidden');
+            loadComments(postId);
+        };
+
+        window.closeComments = function() {
+            document.getElementById('commentsModal').classList.add('hidden');
+            currentPostId = null;
+        };
+
+        async function loadComments(postId) {
+            const snapshot = await get(ref(database, `social/posts/${postId}/comments`));
+            const comments = [];
+            
+            snapshot.forEach((child) => {
+                comments.push({ id: child.key, ...child.val() });
+            });
+
+            comments.sort((a, b) => b.timestamp - a.timestamp);
+
+            const container = document.getElementById('commentsList');
+            
+            if (comments.length === 0) {
+                container.innerHTML = '<p class="text-center text-purple-300 py-10">Aucun commentaire</p>';
+                return;
+            }
+
+            container.innerHTML = comments.map(comment => `
+                <div class="bg-white/5 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold text-white">
+                            ${comment.author.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-bold text-white">${comment.author}</h4>
+                                <span class="text-xs text-purple-300">${getTimeAgo(comment.timestamp)}</span>
+                            </div>
+                            <p class="text-white leading-relaxed">${comment.content}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.addComment = async function() {
+            const content = document.getElementById('commentInput').value.trim();
+            
+            if (!content) {
+                showNotification('⚠️ Écris un commentaire !', 'error');
+                return;
+            }
+
+            await push(ref(database, `social/posts/${currentPostId}/comments`), {
+                author: currentUser,
+                content,
+                timestamp: Date.now()
+            });
+
+            document.getElementById('commentInput').value = '';
+            loadComments(currentPostId);
+            showNotification('✅ Commentaire ajouté !', 'success');
+        };
+
+        // Supprimer post
+        window.deletePost = async function(postId) {
+            if (!confirm('Supprimer ce post ?')) return;
+            await remove(ref(database, `social/posts/${postId}`));
+            showNotification('✅ Post supprimé', 'success');
+        };
+
+        // Filtrer
+        window.filterPosts = function() {
+            const filter = document.getElementById('filterPosts').value;
+            const filtered = filter === 'all' 
+                ? allPosts 
+                : allPosts.filter(p => p.type === filter);
+            displayPosts(filtered);
+        };
+
+        // Time ago
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            
+            if (seconds < 60) return 'À l\'instant';
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' min';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' h';
+            return Math.floor(seconds / 86400) + ' j';
+        }
+
+        // Notifications
+        function showNotification(message, type = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `notification bg-gradient-to-r from-purple-900/95 to-pink-900/95 backdrop-blur-xl border border-purple-500/50 rounded-xl p-4 min-w-[300px]`;
+            notif.innerHTML = `<p class="font-bold">${message}</p>`;
+            document.getElementById('notifications').appendChild(notif);
+            setTimeout(() => notif.remove(), 4000);
+        }
+
+        window.showNotification = showNotification;
+    </script>
+
+
+<script>
+        (function() {
+            const user   = localStorage.getItem('reevox_user');
+            const expiry = localStorage.getItem('reevox_subscription_expiry');
+            if (!user || !expiry || parseInt(expiry) < Date.now()) {
+                window.location.href = 'paiement.html';
+            }
+        })();
+    </script>
+<script src="reevox-mini-player.js"></script>
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Chess - The Ultimate Battle</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cinzel', serif;
+            background: #000;
+            overflow: hidden;
+            color: white;
+        }
+
+        /* Background animé */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Conteneur principal */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Logo avec animations */
+        .logo {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 1.5s ease-out;
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 120px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 80px rgba(255, 215, 0, 0.8);
+            animation: gradientShift 3s ease infinite, glow 2s ease-in-out infinite;
+            letter-spacing: 10px;
+        }
+
+        .logo .crown {
+            font-size: 150px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px gold);
+        }
+
+        .logo .subtitle {
+            font-size: 28px;
+            color: #c0c0c0;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-top: 20px;
+            font-weight: 400;
+            animation: fadeIn 2s ease-out 0.5s backwards;
+        }
+
+        /* Menu principal */
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            animation: fadeInUp 1.5s ease-out 0.5s backwards;
+        }
+
+        .menu-btn {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 255, 255, 0.05));
+            border: 3px solid #ffd700;
+            padding: 25px 60px;
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            transition: all 0.4s ease;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3), transparent);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            border-radius: 50%;
+        }
+
+        .menu-btn:hover::before {
+            width: 500px;
+            height: 500px;
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 80px rgba(255, 215, 0, 0.8);
+            border-color: #fff;
+            color: #fff;
+        }
+
+        .menu-btn .icon {
+            font-size: 32px;
+            margin-right: 15px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        /* Modal Trailer */
+        .trailer-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .trailer-modal.active {
+            display: flex;
+        }
+
+        .trailer-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: #000;
+            border: 5px solid #ffd700;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 100px rgba(255, 215, 0, 0.8);
+        }
+
+        .trailer-content video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .close-trailer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 215, 0, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 28px;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .close-trailer:hover {
+            transform: scale(1.2) rotate(90deg);
+            background: #fff;
+        }
+
+        /* Particules de pièces d'échecs */
+        .chess-piece {
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.3;
+            animation: float-random 20s infinite ease-in-out;
+            pointer-events: none;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+        }
+
+        /* Infos en bas */
+        .footer {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            color: #888;
+            letter-spacing: 2px;
+            z-index: 10;
+            animation: fadeIn 2s ease-out 1s backwards;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes float-random {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(100px, -100px) rotate(90deg); }
+            50% { transform: translate(-50px, -200px) rotate(180deg); }
+            75% { transform: translate(-100px, -100px) rotate(270deg); }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 80px rgba(255, 215, 0, 0.8); }
+            50% { text-shadow: 0 0 120px rgba(255, 215, 0, 1), 0 0 150px rgba(255, 255, 255, 0.5); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Lightning effect */
+        .lightning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .lightning.flash {
+            animation: flash 0.1s;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 60px;
+                letter-spacing: 5px;
+            }
+
+            .logo .crown {
+                font-size: 80px;
+            }
+
+            .logo .subtitle {
+                font-size: 18px;
+                letter-spacing: 4px;
+            }
+
+            .menu-btn {
+                padding: 20px 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas pour le background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Lightning effect -->
+    <div class="lightning" id="lightning"></div>
+
+    <!-- Conteneur principal -->
+    <div class="container">
+        
+        <!-- Logo -->
+        <div class="logo">
+            <div class="crown">♔</div>
+            <h1>ROYAL CHESS</h1>
+            <p class="subtitle">The Ultimate Battle</p>
+        </div>
+
+        <!-- Menu -->
+        <div class="menu">
+            <button class="menu-btn" onclick="startGame()">
+                <span class="icon">⚔️</span>
+                LANCER LA PARTIE
+            </button>
+            
+            <button class="menu-btn" onclick="openTrailer()">
+                <span class="icon">🎬</span>
+                VOIR LE TRAILER
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        REEVOX GAMING © 2026 | POWERED BY THREE.JS
+    </div>
+
+    <!-- Modal Trailer -->
+    <div class="trailer-modal" id="trailerModal">
+        <div class="trailer-content">
+            <button class="close-trailer" onclick="closeTrailer()">✕</button>
+            <video id="trailerVideo" controls>
+                <source src="Enregistrement 2026-03-03 213619.mp4" type="video/mp4">
+                <!-- Remplace "chess-trailer.mp4" par le chemin de ta vidéo -->
+                Ton navigateur ne supporte pas la vidéo.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // 🎮 ROYAL CHESS - PAGE DE LANCEMENT ÉPIQUE
+        // ═══════════════════════════════════════════════════════════
+
+        // Canvas background avec particules
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Particules
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(255, 215, 0, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Créer particules
+        const particles = [];
+        for (let i = 0; i < 150; i++) {
+            particles.push(new Particle());
+        }
+
+        // Animation
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Lignes entre particules proches
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 150) {
+                        ctx.strokeStyle = `rgba(255, 215, 0, ${0.2 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Pièces d'échecs flottantes
+        const chessPieces = ['♔', '♕', '♖', '♗', '♘', '♙'];
+        for (let i = 0; i < 15; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'chess-piece';
+            piece.textContent = chessPieces[Math.floor(Math.random() * chessPieces.length)];
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.top = Math.random() * 100 + '%';
+            piece.style.animationDelay = Math.random() * 20 + 's';
+            piece.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            document.body.appendChild(piece);
+        }
+
+        // Lightning effect aléatoire
+        setInterval(() => {
+            if (Math.random() > 0.97) {
+                const lightning = document.getElementById('lightning');
+                lightning.classList.add('flash');
+                setTimeout(() => lightning.classList.remove('flash'), 100);
+            }
+        }, 1000);
+
+        // Audio ambiance (optionnel)
+        const ambience = new Audio();
+        // ambience.src = 'epic-music.mp3'; // Ajoute ta musique ici
+        // ambience.loop = true;
+        // ambience.volume = 0.3;
+        // ambience.play();
+
+        // Fonctions
+        function startGame() {
+            // Animation de transition
+            document.body.style.transition = 'opacity 1s';
+            document.body.style.opacity = '0';
+            
+            setTimeout(() => {
+                window.location.href = 'page6.html'; // Ton jeu
+            }, 1000);
+        }
+
+        function openTrailer() {
+            const modal = document.getElementById('trailerModal');
+            const video = document.getElementById('trailerVideo');
+            modal.classList.add('active');
+            video.play();
+        }
+
+        function closeTrailer() {
+            const modal = document.getElementById('trailerModal');
+            const video = document.getElementById('trailerVideo');
+            modal.classList.remove('active');
+            video.pause();
+            video.currentTime = 0;
+        }
+
+        // Fermer avec Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeTrailer();
+            }
+        });
+
+        // Resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Console
+        console.log('%c♔ ROYAL CHESS ♔', 'font-size: 40px; color: gold; text-shadow: 0 0 10px gold;');
+        console.log('%cBienvenue dans l\'univers des échecs !', 'font-size: 16px; color: white;');
+    </script>
+
+
+<script>
+        (function() {
+            const user   = localStorage.getItem('reevox_user');
+            const expiry = localStorage.getItem('reevox_subscription_expiry');
+            if (!user || !expiry || parseInt(expiry) < Date.now()) {
+                window.location.href = 'paiement.html';
+            }
+        })();
+    </script>
+<script src="reevox-mini-player.js"></script>
+
+
+
+
+</body>
+</html>

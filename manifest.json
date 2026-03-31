@@ -1,0 +1,38 @@
+{
+  "name": "Reevox Music",
+  "short_name": "Reevox",
+  "description": "Plateforme de streaming musical Reevox",
+  "start_url": "/reevox-music.html",
+  "display": "standalone",
+  "background_color": "#1a0033",
+  "theme_color": "#a855f7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/a855f7/ffffff?text=R",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/512/a855f7/ffffff?text=R",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["music", "entertainment"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Découvrir",
+      "url": "/reevox-music.html#discover",
+      "description": "Découvrir de nouvelles musiques"
+    },
+    {
+      "name": "Ma Bibliothèque",
+      "url": "/reevox-music.html#library",
+      "description": "Accéder à ma bibliothèque"
+    }
+  ]
+}

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reevox - Profil & Classement</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000814;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+
+    <header class="backdrop-blur-xl bg-black/70 border-b border-cyan-500/20 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="backdrop-blur-lg bg-white/5 border border-cyan-400/30 px-4 py-2 rounded-xl text-cyan-400 hover:bg-white/10 transition-all">
+                    ← Retour
+                </a>
+                <img src="IMG_7957.png" class="h-10" alt="Reevox">
+            </div>
+            <div id="userHeader" class="flex items-center gap-4 hidden">
+                <button onclick="showLeaderboard()" class="backdrop-blur-lg bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500/50 px-4 py-2 rounded-xl text-yellow-400 hover:bg-yellow-600/30 transition-all font-bold">
+                    🏆 Classement
+                </button>
+                <span id="currentUserDisplay" class="text-cyan-400"></span>
+                
+
+                
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        
+        <!-- AUTH -->
+        <div id="authSection" class="max-w-md mx-auto">
+            <div class="backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-3xl p-8 shadow-2xl">
+                <h2 class="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                    🎮 REEVOX PROFIL
+                </h2>
+                <p class="text-center text-gray-400 text-sm mb-6">Créez un compte pour accéder à la plateforme</p>
+
+                <div class="flex gap-2 mb-6">
+                    <button onclick="showTab('register')" id="registerTab" class="flex-1 py-2 rounded-lg bg-cyan-500/20 border border-cyan-500/50 text-cyan-400">S'inscrire</button>
+                    <button onclick="showTab('login')" id="loginTab" class="flex-1 py-2 rounded-lg bg-white/5 border border-white/20 hover:bg-white/10 transition-all">Connexion</button>
+                </div>
+
+                <div id="registerForm">
+                    <input type="text" id="registerUsername" placeholder="Pseudo (obligatoire)" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                    <input type="password" id="registerPassword" placeholder="Mot de passe (obligatoire)" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                    <input type="url" id="registerPhoto" placeholder="URL Photo de profil (optionnel)" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                    <p class="text-xs text-gray-400 mb-4">💡 Laisse vide pour une photo par défaut</p>
+                    <button onclick="register()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">CRÉER UN COMPTE</button>
+                </div>
+
+                <div id="loginForm" class="hidden">
+                    <input type="text" id="loginUsername" placeholder="Pseudo" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                    <input type="password" id="loginPassword" placeholder="Mot de passe" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                    <button onclick="login()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">SE CONNECTER</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE SECTION -->
+        <div id="profileSection" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- GAUCHE : JOUEURS -->
+                <div class="backdrop-blur-xl bg-white/5 border border-cyan-500/30 rounded-3xl p-6">
+                    <h3 class="text-2xl font-bold text-cyan-400 mb-4">👥 Joueurs Reevox</h3>
+                    <input type="text" id="userSearch" placeholder="🔍 Rechercher un joueur..." 
+                        class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-2 focus:border-cyan-500 focus:outline-none"
+                        oninput="filterUsers()">
+                    <p id="usersCount" class="text-xs text-gray-400 mb-3"></p>
+                    <div id="usersList" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
+                </div>
+
+                <!-- CENTRE : PROFIL -->
+                <div class="backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-3xl p-8">
+                    <div class="text-center">
+                        <div class="relative inline-block mb-4">
+                            <img id="profilePhoto" src="" class="w-32 h-32 rounded-full mx-auto border-4 border-cyan-500 object-cover">
+                        </div>
+                        <h2 id="profileUsername" class="text-3xl font-bold text-cyan-400 mb-2"></h2>
+                        <p id="profileJoinDate" class="text-gray-400 text-sm mb-2"></p>
+                        <p id="profileRank" class="text-yellow-400 text-lg font-bold mb-4"></p>
+                        
+                        <!-- BOUTON MODIFIER (visible seulement sur son propre profil) -->
+                        <button id="editProfileBtn" onclick="openEditProfile()" class="bg-white/10 border border-white/20 px-4 py-2 rounded-xl text-sm hover:bg-white/20 transition-all mb-4 hidden">
+                            ✏️ Modifier le profil
+                        </button>
+
+                        <button id="messageBtn" onclick="openMessaging()" class="bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-cyan-500/50 transition-all mb-4 hidden">
+                            💬 Envoyer un message
+                        </button>
+
+                        <div class="bg-black/30 rounded-xl p-4">
+                            <h3 class="text-xl font-bold text-cyan-400 mb-4">🏆 Scores Certifiés</h3>
+                            <div id="profileScores" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                            <button id="addScoreBtn" onclick="openAddScore()" class="mt-4 bg-cyan-600/20 border border-cyan-600 text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-600 hover:text-white transition-all hidden">
+                                + Ajouter un score
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DROITE : MESSAGES -->
+                <div class="backdrop-blur-xl bg-white/5 border border-cyan-500/30 rounded-3xl p-6">
+                    <h3 class="text-2xl font-bold text-cyan-400 mb-4">💬 Conversations</h3>
+                    <div id="messagesList" class="space-y-2 max-h-[600px] overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EDIT PROFILE MODAL -->
+        <div id="editProfileModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+            <div class="backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/50 rounded-3xl p-8 max-w-md w-full">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-6">✏️ Modifier le profil</h2>
+                
+                <div class="text-center mb-6">
+                    <img id="editPreviewPhoto" src="" class="w-24 h-24 rounded-full mx-auto border-4 border-cyan-500 object-cover mb-2">
+                    <p class="text-xs text-gray-400">Aperçu</p>
+                </div>
+
+                <label class="block text-cyan-400 font-bold mb-2 text-sm">👤 Nouveau pseudo</label>
+                <input type="text" id="editUsername" placeholder="Nouveau pseudo" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                
+                <label class="block text-cyan-400 font-bold mb-2 text-sm">📸 Nouvelle photo de profil</label>
+                <input type="url" id="editPhoto" placeholder="Nouveau lien de photo" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-2 focus:border-cyan-500 focus:outline-none" oninput="previewPhoto()">
+                <p class="text-xs text-gray-400 mb-4">💡 Lien direct vers une image (Imgur, etc.)</p>
+
+                <label class="block text-cyan-400 font-bold mb-2 text-sm">🔑 Mot de passe actuel (obligatoire)</label>
+                <input type="password" id="editCurrentPassword" placeholder="Ton mot de passe actuel" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-6 focus:border-cyan-500 focus:outline-none">
+
+                <div class="flex gap-2">
+                    <button onclick="saveProfile()" class="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
+                        ✅ Sauvegarder
+                    </button>
+                    <button onclick="closeEditProfile()" class="flex-1 bg-red-500/20 border border-red-500/50 py-3 rounded-lg hover:bg-red-500/30 transition-all">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEADERBOARD MODAL -->
+        <div id="leaderboardModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+            <div class="backdrop-blur-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 rounded-3xl p-8 max-w-4xl w-full max-h-[80vh] flex flex-col">
+                <h2 class="text-3xl font-bold text-yellow-400 mb-2 text-center">🏆 CLASSEMENT MONDIAL</h2>
+                <p class="text-gray-400 text-center mb-4 text-sm">Top joueurs par score total certifié</p>
+                <select id="gameFilter" onchange="filterLeaderboard()" class="w-full bg-black/30 border border-yellow-500/30 rounded-lg px-4 py-3 mb-4 text-white focus:outline-none">
+                    <option value="total">🌍 Score Total</option>
+                </select>
+                <div id="leaderboardContent" class="flex-1 overflow-y-auto space-y-2"></div>
+                <button onclick="closeLeaderboard()" class="mt-4 w-full bg-red-500/20 border border-red-500/50 px-4 py-2 rounded-lg hover:bg-red-500/30 transition-all">Fermer</button>
+            </div>
+        </div>
+
+        <!-- MESSAGING MODAL -->
+        <div id="messagingModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+            <div class="backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/50 rounded-3xl p-8 max-w-2xl w-full max-h-[80vh] flex flex-col">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-4">💬 Message avec <span id="messageToUser"></span></h2>
+                <div id="chatMessages" class="bg-black/30 rounded-xl p-4 flex-1 overflow-y-auto mb-4"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="messageInput" placeholder="Tapez votre message..." class="flex-1 bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none">
+                    <button onclick="sendMessage()" class="bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-3 rounded-lg font-bold">Envoyer</button>
+                </div>
+                <button onclick="closeMessaging()" class="mt-4 w-full bg-red-500/20 border border-red-500/50 px-4 py-2 rounded-lg hover:bg-red-500/30 transition-all">Fermer</button>
+            </div>
+        </div>
+
+        <!-- ADD SCORE MODAL -->
+        <div id="addScoreModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+            <div class="backdrop-blur-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/50 rounded-3xl p-8 max-w-md w-full">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-4">🎮 Ajouter un score certifié</h2>
+                <input type="text" id="gameName" placeholder="Nom du jeu (ex: Snake)" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                <input type="number" id="gameScore" placeholder="Ton score (ex: 1250)" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-4 focus:border-cyan-500 focus:outline-none">
+                <label class="block text-cyan-400 font-bold mb-2 text-sm">📸 PREUVE DU SCORE (obligatoire)</label>
+                <input type="url" id="scoreProof" placeholder="Lien de ta capture d'écran" class="w-full bg-black/30 border border-cyan-500/30 rounded-lg px-4 py-3 mb-2 focus:border-cyan-500 focus:outline-none">
+                <p class="text-xs text-yellow-400 mb-4 bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-2">
+                    ⚠️ Upload ta capture sur <a href="https://imgur.com/upload" target="_blank" class="underline">Imgur</a> puis colle le lien ici
+                </p>
+                <div class="flex gap-2">
+                    <button onclick="submitScore()" class="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 py-3 rounded-lg font-bold">✅ Certifier</button>
+                    <button onclick="closeAddScore()" class="flex-1 bg-red-500/20 border border-red-500/50 py-3 rounded-lg">Annuler</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROOF MODAL -->
+        <div id="proofModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+            <div class="max-w-4xl w-full">
+                <div class="text-right mb-2">
+                    <button onclick="closeProofModal()" class="bg-red-500 px-4 py-2 rounded-lg font-bold hover:bg-red-600 transition-all">✕ Fermer</button>
+                </div>
+                <img id="proofImage" src="" class="w-full rounded-xl border-4 border-cyan-500 shadow-2xl" alt="Preuve du score">
+                <p class="text-center text-cyan-400 mt-4 font-bold">📸 Capture d'écran du score certifié</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, set, onValue, get, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0kJQP62qnj1K_duIgLXMqtkozfs9PifA",
+            authDomain: "reevox-gamehub.firebaseapp.com",
+            databaseURL: "https://reevox-gamehub-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "reevox-gamehub",
+            storageBucket: "reevox-gamehub.firebasestorage.app",
+            messagingSenderId: "977802762477",
+            appId: "1:977802762477:web:edac4a5eb4cd92fa6694e4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+        let currentUserKey = null;
+        let viewingUser = null;
+        let messagingWith = null;
+        let allUsers = [];
+        let allGames = new Set();
+
+        const savedUser = localStorage.getItem('reevox_user');
+        if (savedUser) {
+            currentUser = savedUser;
+            showProfile();
+        }
+
+        window.showTab = function(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginTab').className = 'flex-1 py-2 rounded-lg bg-cyan-500/20 border border-cyan-500/50 text-cyan-400';
+                document.getElementById('registerTab').className = 'flex-1 py-2 rounded-lg bg-white/5 border border-white/20 hover:bg-white/10 transition-all';
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('registerTab').className = 'flex-1 py-2 rounded-lg bg-cyan-500/20 border border-cyan-500/50 text-cyan-400';
+                document.getElementById('loginTab').className = 'flex-1 py-2 rounded-lg bg-white/5 border border-white/20 hover:bg-white/10 transition-all';
+            }
+        };
+
+        window.register = async function() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const photo = document.getElementById('registerPhoto').value.trim() || 
+                'https://via.placeholder.com/150/0ea5e9/ffffff?text=' + encodeURIComponent(username.charAt(0).toUpperCase());
+
+            if (!username || !password) { alert('⚠️ Le pseudo et le mot de passe sont obligatoires'); return; }
+            if (username.length < 3) { alert('⚠️ Le pseudo doit contenir au moins 3 caractères'); return; }
+            if (password.length < 4) { alert('⚠️ Le mot de passe doit contenir au moins 4 caractères'); return; }
+
+            try {
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+                let userExists = false;
+                snapshot.forEach((child) => {
+                    if (child.val().username && child.val().username.toLowerCase() === username.toLowerCase()) userExists = true;
+                });
+                if (userExists) { alert('❌ Ce pseudo est déjà pris'); return; }
+
+                const newUserRef = push(usersRef);
+                await set(newUserRef, { username, password, photo, joinDate: Date.now(), scores: {}, totalScore: 0 });
+
+                currentUser = username;
+                localStorage.setItem('reevox_user', username);
+                showProfile();
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        };
+
+        window.login = async function() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!username || !password) { alert('⚠️ Remplissez tous les champs'); return; }
+
+            try {
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+                let found = false;
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (user.username && user.username.toLowerCase() === username.toLowerCase() && user.password === password) {
+                        found = true;
+                        currentUser = user.username;
+                        currentUserKey = child.key;
+                        localStorage.setItem('reevox_user', user.username);
+                    }
+                });
+                if (found) { showProfile(); }
+                else { alert('❌ Pseudo ou mot de passe incorrect'); }
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        };
+
+        window.logout = function() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                localStorage.removeItem('reevox_user');
+                location.reload();
+            }
+        };
+
+        async function findUserKey(username) {
+            const snapshot = await get(ref(database, 'users'));
+            let key = null;
+            snapshot.forEach((child) => {
+                if (child.val().username === username) key = child.key;
+            });
+            return key;
+        }
+
+        function showProfile() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.remove('hidden');
+            document.getElementById('userHeader').classList.remove('hidden');
+            document.getElementById('currentUserDisplay').textContent = '👤 ' + currentUser;
+            viewingUser = currentUser;
+            loadUserProfile(currentUser);
+            loadUsersList();
+            loadMessages();
+        }
+
+        async function loadUserProfile(username) {
+            try {
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+                
+                const allUsersArr = [];
+                snapshot.forEach((child) => {
+                    if (child.val().username) allUsersArr.push(child.val());
+                });
+                allUsersArr.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+                
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (user.username === username) {
+                        document.getElementById('profilePhoto').src = user.photo;
+                        document.getElementById('profileUsername').textContent = user.username;
+                        document.getElementById('profileJoinDate').textContent = 'Membre depuis le ' + new Date(user.joinDate).toLocaleDateString('fr-FR');
+                        
+                        const rank = allUsersArr.findIndex(u => u.username === username) + 1;
+                        const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🏅';
+                        document.getElementById('profileRank').textContent = `${rankEmoji} Classement mondial : #${rank} (${user.totalScore || 0} pts)`;
+
+                        const isOwnProfile = username === currentUser;
+                        document.getElementById('messageBtn').classList.toggle('hidden', isOwnProfile);
+                        document.getElementById('addScoreBtn').classList.toggle('hidden', !isOwnProfile);
+                        document.getElementById('editProfileBtn').classList.toggle('hidden', !isOwnProfile);
+
+                        const scoresDiv = document.getElementById('profileScores');
+                        scoresDiv.innerHTML = '';
+                        
+                        if (user.scores && Object.keys(user.scores).length > 0) {
+                            const sortedScores = Object.entries(user.scores).sort((a, b) => {
+                                const scoreA = typeof a[1] === 'object' ? a[1].score : a[1];
+                                const scoreB = typeof b[1] === 'object' ? b[1].score : b[1];
+                                return scoreB - scoreA;
+                            });
+                            
+                            sortedScores.forEach(([game, scoreData]) => {
+                                allGames.add(game);
+                                const score = typeof scoreData === 'object' ? scoreData.score : scoreData;
+                                const certified = typeof scoreData === 'object' && scoreData.certified;
+                                const proof = typeof scoreData === 'object' ? scoreData.proof : null;
+                                const timestamp = typeof scoreData === 'object' ? scoreData.timestamp : null;
+                                
+                                const scoreCard = document.createElement('div');
+                                scoreCard.className = 'bg-cyan-500/10 rounded-lg p-3 hover:bg-cyan-500/20 transition-all';
+                                scoreCard.innerHTML = `
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-bold">🎮 ${game}</span>
+                                        <span class="text-cyan-400 text-xl font-bold">${score.toLocaleString()} pts</span>
+                                    </div>
+                                    ${certified ? `
+                                        <div class="flex items-center gap-2 text-xs">
+                                            <span class="bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/50 font-bold">✓ CERTIFIÉ</span>
+                                            <span class="text-gray-400">${timestamp ? new Date(timestamp).toLocaleDateString('fr-FR') : ''}</span>
+                                        </div>
+                                    ` : ''}
+                                `;
+                                if (certified && proof) {
+                                    const proofBtn = document.createElement('button');
+                                    proofBtn.textContent = '📸 Voir la preuve';
+                                    proofBtn.className = 'text-cyan-400 hover:text-cyan-300 underline font-bold text-xs mt-1 block';
+                                    proofBtn.addEventListener('click', () => openProofModal(proof));
+                                    scoreCard.appendChild(proofBtn);
+                                }
+                                scoresDiv.appendChild(scoreCard);
+                            });
+                        } else {
+                            scoresDiv.innerHTML = '<p class="text-gray-400 text-sm italic">Aucun score enregistré</p>';
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // EDIT PROFILE
+        window.openEditProfile = async function() {
+            const snapshot = await get(ref(database, 'users'));
+            snapshot.forEach((child) => {
+                const user = child.val();
+                if (user.username === currentUser) {
+                    document.getElementById('editUsername').value = user.username;
+                    document.getElementById('editPhoto').value = user.photo;
+                    document.getElementById('editPreviewPhoto').src = user.photo;
+                    document.getElementById('editCurrentPassword').value = '';
+                }
+            });
+            document.getElementById('editProfileModal').classList.remove('hidden');
+        };
+
+        window.closeEditProfile = function() {
+            document.getElementById('editProfileModal').classList.add('hidden');
+        };
+
+        window.previewPhoto = function() {
+            const url = document.getElementById('editPhoto').value.trim();
+            if (url) document.getElementById('editPreviewPhoto').src = url;
+        };
+
+        window.saveProfile = async function() {
+            const newUsername = document.getElementById('editUsername').value.trim();
+            const newPhoto = document.getElementById('editPhoto').value.trim();
+            const currentPassword = document.getElementById('editCurrentPassword').value.trim();
+
+            if (!newUsername) { alert('⚠️ Le pseudo ne peut pas être vide'); return; }
+            if (newUsername.length < 3) { alert('⚠️ Le pseudo doit contenir au moins 3 caractères'); return; }
+            if (!currentPassword) { alert('⚠️ Entre ton mot de passe actuel pour confirmer'); return; }
+
+            try {
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+
+                let userKey = null;
+                let userPassword = null;
+                let userPhoto = null;
+
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (user.username === currentUser) {
+                        userKey = child.key;
+                        userPassword = user.password;
+                        userPhoto = user.photo;
+                    }
+                });
+
+                // Vérifier le mot de passe
+                if (currentPassword !== userPassword) {
+                    alert('❌ Mot de passe incorrect !');
+                    return;
+                }
+
+                // Vérifier si le nouveau pseudo est déjà pris (si différent)
+                if (newUsername.toLowerCase() !== currentUser.toLowerCase()) {
+                    let pseudoTaken = false;
+                    snapshot.forEach((child) => {
+                        const user = child.val();
+                        if (user.username && user.username.toLowerCase() === newUsername.toLowerCase() && user.username !== currentUser) {
+                            pseudoTaken = true;
+                        }
+                    });
+                    if (pseudoTaken) { alert('❌ Ce pseudo est déjà pris'); return; }
+                }
+
+                const finalPhoto = newPhoto || userPhoto;
+
+                // Mettre à jour dans Firebase
+                await update(ref(database, `users/${userKey}`), {
+                    username: newUsername,
+                    photo: finalPhoto
+                });
+
+                // Mettre à jour le localStorage
+                currentUser = newUsername;
+                localStorage.setItem('reevox_user', newUsername);
+                document.getElementById('currentUserDisplay').textContent = '👤 ' + currentUser;
+
+                alert('✅ Profil mis à jour avec succès !');
+                closeEditProfile();
+                viewingUser = newUsername;
+                loadUserProfile(newUsername);
+                loadUsersList();
+
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        };
+
+        window.openProofModal = function(proofUrl) {
+            document.getElementById('proofImage').src = proofUrl;
+            document.getElementById('proofModal').classList.remove('hidden');
+        };
+
+        window.closeProofModal = function() {
+            document.getElementById('proofModal').classList.add('hidden');
+            document.getElementById('proofImage').src = '';
+        };
+
+        async function loadUsersList() {
+            try {
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+                allUsers = [];
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (user && user.username) allUsers.push(user);
+                });
+                allUsers.sort((a, b) => b.joinDate - a.joinDate);
+                document.getElementById('usersCount').textContent = allUsers.length + ' joueur(s) inscrit(s)';
+                displayUsers(allUsers);
+
+                onValue(usersRef, (snapshot) => {
+                    allUsers = [];
+                    snapshot.forEach((child) => {
+                        const user = child.val();
+                        if (user && user.username) allUsers.push(user);
+                    });
+                    allUsers.sort((a, b) => b.joinDate - a.joinDate);
+                    document.getElementById('usersCount').textContent = allUsers.length + ' joueur(s) inscrit(s)';
+                    displayUsers(allUsers);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function displayUsers(users) {
+            const usersDiv = document.getElementById('usersList');
+            usersDiv.innerHTML = '';
+            if (users.length === 0) {
+                usersDiv.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">Aucun joueur trouvé</p>';
+                return;
+            }
+            users.forEach((user) => {
+                const isCurrentUser = user.username === currentUser;
+                const isViewing = user.username === viewingUser;
+                usersDiv.innerHTML += `
+                    <div onclick="viewProfile('${user.username}')" class="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${isViewing ? 'bg-cyan-500/30 border-2 border-cyan-500' : isCurrentUser ? 'bg-cyan-500/20 border border-cyan-500/50' : 'bg-white/5 hover:bg-white/10'}">
+                        <img src="${user.photo}" class="w-12 h-12 rounded-full object-cover border-2 border-cyan-500" onerror="this.src='https://via.placeholder.com/50/0ea5e9/ffffff?text=?'">
+                        <div class="flex-1">
+                            <div class="font-bold ${isCurrentUser ? 'text-cyan-400' : 'text-white'}">${user.username}</div>
+                            <div class="text-xs text-gray-400">${Object.keys(user.scores || {}).length} score(s)</div>
+                        </div>
+                        ${isCurrentUser ? '<span class="text-xs text-cyan-400 font-bold bg-cyan-500/20 px-2 py-1 rounded-full">MOI</span>' : ''}
+                    </div>
+                `;
+            });
+        }
+
+        window.filterUsers = function() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase().trim();
+            const filtered = searchTerm === '' ? allUsers : allUsers.filter(user => 
+                user.username.toLowerCase().includes(searchTerm)
+            );
+            displayUsers(filtered);
+        };
+
+        window.viewProfile = function(username) {
+            viewingUser = username;
+            loadUserProfile(username);
+        };
+
+        window.openAddScore = function() {
+            document.getElementById('addScoreModal').classList.remove('hidden');
+        };
+
+        window.closeAddScore = function() {
+            document.getElementById('addScoreModal').classList.add('hidden');
+            document.getElementById('gameName').value = '';
+            document.getElementById('gameScore').value = '';
+            document.getElementById('scoreProof').value = '';
+        };
+
+        window.submitScore = async function() {
+            const gameName = document.getElementById('gameName').value.trim();
+            const gameScore = document.getElementById('gameScore').value.trim();
+            const scoreProof = document.getElementById('scoreProof').value.trim();
+
+            if (!gameName || !gameScore) { alert('⚠️ Remplis le nom du jeu et le score'); return; }
+            if (!scoreProof) { alert('⚠️ Ajoute une capture d\'écran comme preuve !'); return; }
+            if (parseInt(gameScore) < 0) { alert('⚠️ Le score doit être positif'); return; }
+
+            try {
+                const snapshot = await get(ref(database, 'users'));
+                let userKey = null;
+                let currentTotalScore = 0;
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (user.username === currentUser) {
+                        userKey = child.key;
+                        currentTotalScore = user.totalScore || 0;
+                    }
+                });
+
+                if (userKey) {
+                    await set(ref(database, `users/${userKey}/scores/${gameName}`), {
+                        score: parseInt(gameScore),
+                        proof: scoreProof,
+                        certified: true,
+                        timestamp: Date.now()
+                    });
+                    await set(ref(database, `users/${userKey}/totalScore`), currentTotalScore + parseInt(gameScore));
+                    alert('✅ Score certifié et ajouté au classement ! 🏆');
+                    closeAddScore();
+                    loadUserProfile(currentUser);
+                }
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        };
+
+        window.showLeaderboard = async function() {
+            document.getElementById('leaderboardModal').classList.remove('hidden');
+            const gameFilter = document.getElementById('gameFilter');
+            gameFilter.innerHTML = '<option value="total">🌍 Score Total</option>';
+            allGames.forEach(game => {
+                gameFilter.innerHTML += `<option value="${game}">🎮 ${game}</option>`;
+            });
+            filterLeaderboard();
+        };
+
+        window.filterLeaderboard = async function() {
+            const gameFilter = document.getElementById('gameFilter').value;
+            const leaderboardContent = document.getElementById('leaderboardContent');
+            leaderboardContent.innerHTML = '<p class="text-center text-gray-400">Chargement...</p>';
+            
+            try {
+                const snapshot = await get(ref(database, 'users'));
+                const rankings = [];
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    if (!user.username) return;
+                    if (gameFilter === 'total') {
+                        rankings.push({ username: user.username, photo: user.photo, score: user.totalScore || 0 });
+                    } else {
+                        if (user.scores && user.scores[gameFilter]) {
+                            const scoreData = user.scores[gameFilter];
+                            const score = typeof scoreData === 'object' ? scoreData.score : scoreData;
+                            rankings.push({ username: user.username, photo: user.photo, score });
+                        }
+                    }
+                });
+                rankings.sort((a, b) => b.score - a.score);
+                leaderboardContent.innerHTML = '';
+                if (rankings.length === 0) {
+                    leaderboardContent.innerHTML = '<p class="text-gray-400 text-center py-8">Aucun score</p>';
+                    return;
+                }
+                rankings.forEach((player, index) => {
+                    const rank = index + 1;
+                    let rankDisplay = `#${rank}`;
+                    let bgColor = 'bg-white/5';
+                    if (rank === 1) { rankDisplay = '🥇'; bgColor = 'bg-gradient-to-r from-yellow-600/20 to-yellow-500/20 border-2 border-yellow-500'; }
+                    else if (rank === 2) { rankDisplay = '🥈'; bgColor = 'bg-gradient-to-r from-gray-400/20 to-gray-300/20 border-2 border-gray-400'; }
+                    else if (rank === 3) { rankDisplay = '🥉'; bgColor = 'bg-gradient-to-r from-orange-600/20 to-orange-500/20 border-2 border-orange-500'; }
+                    const isMe = player.username === currentUser;
+                    leaderboardContent.innerHTML += `
+                        <div class="${bgColor} rounded-xl p-4 flex items-center gap-4 ${isMe ? 'ring-2 ring-cyan-500' : ''}">
+                            <div class="text-2xl font-bold w-12 text-center ${rank > 3 ? 'text-gray-400' : ''}">${rankDisplay}</div>
+                            <img src="${player.photo}" class="w-16 h-16 rounded-full object-cover border-2 border-cyan-500" onerror="this.src='https://via.placeholder.com/50/0ea5e9/ffffff?text=?'">
+                            <div class="flex-1">
+                                <div class="font-bold text-xl ${isMe ? 'text-cyan-400' : 'text-white'}">${player.username}</div>
+                                <div class="text-yellow-400 font-bold text-lg">${player.score.toLocaleString()} points</div>
+                            </div>
+                            ${isMe ? '<span class="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-sm font-bold">C\'est toi !</span>' : ''}
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        window.closeLeaderboard = function() {
+            document.getElementById('leaderboardModal').classList.add('hidden');
+        };
+
+        window.openMessaging = function() {
+            messagingWith = viewingUser;
+            document.getElementById('messageToUser').textContent = viewingUser;
+            document.getElementById('messagingModal').classList.remove('hidden');
+            loadChat();
+        };
+
+        window.closeMessaging = function() {
+            document.getElementById('messagingModal').classList.add('hidden');
+            document.getElementById('messageInput').value = '';
+            messagingWith = null;
+        };
+
+        async function loadChat() {
+            const chatId = [currentUser, messagingWith].sort().join('_');
+            onValue(ref(database, `chats/${chatId}`), (snapshot) => {
+                const chatDiv = document.getElementById('chatMessages');
+                chatDiv.innerHTML = '';
+                if (!snapshot.exists()) {
+                    chatDiv.innerHTML = '<p class="text-gray-400 text-center py-8">Commencez la conversation ! 💬</p>';
+                    return;
+                }
+                snapshot.forEach((child) => {
+                    const msg = child.val();
+                    const isMe = msg.from === currentUser;
+                    chatDiv.innerHTML += `
+                        <div class="mb-3 ${isMe ? 'text-right' : 'text-left'}">
+                            <div class="inline-block ${isMe ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-white/10'} rounded-xl px-4 py-2 max-w-md">
+                                <p class="text-sm font-bold ${isMe ? 'text-cyan-400' : 'text-gray-300'}">${escapeHtml(msg.from)}</p>
+                                <p class="text-white">${escapeHtml(msg.text)}</p>
+                                <p class="text-xs text-gray-500 mt-1">${new Date(msg.timestamp).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            });
+        }
+
+        window.sendMessage = async function() {
+            const messageInput = document.getElementById('messageInput');
+            const text = messageInput.value.trim();
+            if (!text) return;
+            const chatId = [currentUser, messagingWith].sort().join('_');
+            await push(ref(database, `chats/${chatId}`), { from: currentUser, to: messagingWith, text, timestamp: Date.now() });
+            messageInput.value = '';
+        };
+
+        async function loadMessages() {
+            onValue(ref(database, 'chats'), (snapshot) => {
+                const messagesDiv = document.getElementById('messagesList');
+                messagesDiv.innerHTML = '';
+                const conversations = new Map();
+                snapshot.forEach((child) => {
+                    const users = child.key.split('_');
+                    if (users.includes(currentUser)) {
+                        const otherUser = users.find(u => u !== currentUser);
+                        if (otherUser) {
+                            let lastMsg = '', lastTime = 0;
+                            child.forEach((msgChild) => {
+                                const msg = msgChild.val();
+                                if (msg.timestamp > lastTime) { lastTime = msg.timestamp; lastMsg = msg.text; }
+                            });
+                            conversations.set(otherUser, { lastMsg, lastTime });
+                        }
+                    }
+                });
+                if (conversations.size === 0) {
+                    messagesDiv.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">Aucune conversation</p>';
+                    return;
+                }
+                Array.from(conversations.entries())
+                    .sort((a, b) => b[1].lastTime - a[1].lastTime)
+                    .forEach(([username, data]) => {
+                        messagesDiv.innerHTML += `
+                            <div onclick="quickMessage('${username}')" class="bg-white/5 hover:bg-white/10 rounded-xl p-3 cursor-pointer transition-all border border-cyan-500/20 hover:border-cyan-500/50">
+                                <p class="font-bold text-cyan-400">💬 ${username}</p>
+                                <p class="text-sm text-gray-400 truncate">${escapeHtml(data.lastMsg)}</p>
+                                <p class="text-xs text-gray-500 mt-1">${new Date(data.lastTime).toLocaleDateString('fr-FR')}</p>
+                            </div>
+                        `;
+                    });
+            });
+        }
+
+        window.quickMessage = function(username) {
+            viewProfile(username);
+            setTimeout(() => openMessaging(), 100);
+        };
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !document.getElementById('messagingModal').classList.contains('hidden')) {
+                sendMessage();
+            }
+        });
+    </script>
+
+
+<script>
+    (function() {
+        const user   = localStorage.getItem('reevox_user');
+        const expiry = localStorage.getItem('reevox_subscription_expiry');
+        if (!user || !expiry || parseInt(expiry) < Date.now()) {
+            window.location.href = 'paiement.html';
+        }
+    })();
+</script>
+
+
+<script src="reevox-mini-player.js"></script>
+
+
+</body>
+</html>
