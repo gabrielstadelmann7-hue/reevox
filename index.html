@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reevox - Games</title>
+
+<link rel="icon" type="image/x-icon" href="IMG_8395.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ══════════════════════════════════════
+   VARIABLES & RESET
+══════════════════════════════════════ */
+:root {
+  --bg: #000814;
+  --bg2: #000f1f;
+  --cyan: #00eaff;
+  --cyan-dim: rgba(0,234,255,0.15);
+  --cyan-glow: rgba(0,234,255,0.5);
+  --purple: #a855f7;
+  --red: #ef4444;
+  --yellow: #fbbf24;
+  --green: #10b981;
+  --neon-green: #39ff14;
+  --glass: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.1);
+  --font-head: 'Rajdhani', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: #fff;
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Subtle grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,234,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,234,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(0,8,20,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0;
+}
+
+/* Logo */
+.logo-wrap {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 10px 0;
+}
+.logo {
+  height: 64px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Nav icons — right of logo on desktop, side panel on mobile */
+.nav-icons {
+  grid-column: 3;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--glass-border);
+  background: var(--glass);
+  transition: .25s;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.nav-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.nav-icon:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px var(--cyan-glow);
+  transform: translateY(-2px);
+}
+
+/* Music glow button */
+.music-btn {
+  padding: 0 14px;
+  height: 42px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--purple);
+  background: rgba(168,85,247,0.12);
+  color: var(--purple);
+  font-weight: 700;
+  font-size: 18px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: .25s;
+}
+.music-btn:hover {
+  background: rgba(168,85,247,0.25);
+  box-shadow: 0 0 14px rgba(168,85,247,0.7);
+  transform: translateY(-2px);
+}
+
+/* Search + filter bar */
+.search-bar {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 12px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.search-input {
+  flex: 1;
+  padding: 9px 18px;
+  border-radius: 20px;
+  border: 1.5px solid var(--glass-border);
+  background: var(--glass);
+  color: #fff;
+  font-size: 14px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: .3s;
+}
+.search-input::placeholder { color: rgba(255,255,255,0.35); }
+.search-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan-glow);
+  background: rgba(0,234,255,0.07);
+}
+
+#durationFilter {
+  padding: 9px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--glass-border);
+  background: var(--glass);
+  color: #fff;
+  font-size: 13px;
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+  transition: .3s;
+  white-space: nowrap;
+}
+#durationFilter:focus, #durationFilter:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+#durationFilter option { background: #001220; color: #fff; }
+
+/* ══════════════════════════════════════
+   MOOD SECTION
+══════════════════════════════════════ */
+.mood-toggle-wrap {
+  padding: 18px 20px 0;
+}
+
+.mood-toggle-btn {
+  background: var(--glass);
+  border: 1.5px solid var(--glass-border);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: .3s;
+}
+.mood-toggle-btn:hover { background: rgba(255,255,255,0.12); }
+
+#moodBar {
+  display: none;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 20px;
+}
+
+.mood-btn {
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: .3s;
+}
+.mood-btn:hover { transform: scale(1.06); filter: brightness(1.3); }
+.mood-btn.active { transform: scale(1.08); filter: brightness(1.4); outline: 2px solid #fff; }
+
+/* ══════════════════════════════════════
+   SECTION TITLES
+══════════════════════════════════════ */
+.section-title {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 28px 20px 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 22px;
+  background: var(--cyan);
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+/* ══════════════════════════════════════
+   GAME ROWS
+══════════════════════════════════════ */
+.row-container {
+  position: relative;
+}
+
+.row {
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+  padding: 12px 20px 28px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeUp .6s forwards;
+}
+.row::-webkit-scrollbar { height: 5px; }
+.row::-webkit-scrollbar-track { background: transparent; }
+.row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 10px; }
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════
+   CARDS
+══════════════════════════════════════ */
+.card {
+  flex: 0 0 auto;
+  width: 220px;
+  text-decoration: none;
+  color: #fff;
+  scroll-snap-align: start;
+  transition: transform .28s, opacity .28s;
+  position: relative;
+}
+
+.card-thumb {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+  transition: .3s;
+}
+
+.card:hover { transform: scale(1.07); }
+.card:hover .card-thumb {
+  filter: brightness(1.15);
+  box-shadow: 0 12px 30px rgba(0,234,255,0.2);
+}
+
+/* Cyan accent line on hover */
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: 32px;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  background: var(--cyan);
+  border-radius: 1px;
+  opacity: 0;
+  transition: .3s;
+  box-shadow: 0 0 10px var(--cyan);
+}
+.card:hover::after { opacity: 1; }
+
+.card-title {
+  margin-top: 8px;
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.9);
+}
+
+/* Hidden state */
+.card.hide {
+  opacity: 0;
+  transform: scale(0.88) translateY(8px);
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════
+   SCROLL ARROWS (desktop only)
+══════════════════════════════════════ */
+.scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,8,20,0.8);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(0,234,255,0.3);
+  color: var(--cyan);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: bold;
+  transition: .3s;
+  opacity: .75;
+}
+.scroll-btn:hover {
+  opacity: 1;
+  background: var(--cyan-dim);
+  box-shadow: 0 0 18px var(--cyan-glow);
+  transform: translateY(-50%) scale(1.1);
+}
+.scroll-btn-left  { left: 4px; }
+.scroll-btn-right { right: 4px; }
+
+/* ══════════════════════════════════════
+   MOBILE  (≤ 600px)
+══════════════════════════════════════ */
+@media (max-width: 600px) {
+  header {
+    padding: 0 14px;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .logo { height: 48px; }
+
+  .nav-icons {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+  .nav-icon { width: 36px; height: 36px; border-radius: 10px; }
+  .music-btn { height: 36px; padding: 0 10px; font-size: 15px; }
+
+  .search-bar {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0 10px;
+  }
+  .search-input, #durationFilter {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .section-title { font-size: 17px; margin: 22px 14px 4px; }
+
+  .row { padding: 10px 14px 22px; gap: 12px; }
+
+  .card { width: 170px; }
+  .card-thumb { height: 105px; border-radius: 10px; }
+  .card-title { font-size: 13px; }
+
+  .scroll-btn { display: none; }
+
+  #moodBar { padding: 12px 14px; gap: 8px; }
+  .mood-btn { padding: 8px 14px; font-size: 12px; }
+  .mood-toggle-wrap { padding: 14px 14px 0; }
+}
+
+/* ══════════════════════════════════════
+   TABLET (601–900px)
+══════════════════════════════════════ */
+@media (min-width: 601px) and (max-width: 900px) {
+  header { padding: 0 24px; }
+  .logo { height: 56px; }
+  .card { width: 200px; }
+  .card-thumb { height: 118px; }
+  .section-title { font-size: 20px; margin: 24px 24px 4px; }
+  .row { padding: 12px 24px 24px; }
+  #moodBar, .mood-toggle-wrap { padding-left: 24px; padding-right: 24px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header>
+
+  <!-- Logo -->
+  <div class="logo-wrap">
+    <img src="IMG_7957.png" class="logo" alt="Reevox">
+  </div>
+
+  <!-- Nav icons -->
+  <div class="nav-icons">
+    <a href="pagehub.html" class="nav-icon" title="Game Hub">
+      <img src="Capture d’écran 2026-02-16 140343.png" alt="GameHub">
+    </a>
+    <a href="reevox-social.html" class="nav-icon" title="Social">
+      <img src="Capture d’écran 2026-03-06 094021.png" alt="GameHub">
+    </a>
+    <a href="compterivox.html" class="nav-icon" title="Rivox Account">
+      <img src="Capture d’écran 2026-02-16 225420.png" alt="GameHub">
+    </a>
+    <a href="infocompte.html" class="nav-icon" title="Profile Info">
+      <img src="Capture d’écran 2026-02-24 113627.png" alt="GameHub">
+    </a>
+    <a href="ludic.html" class="nav-icon" title="Ludic">
+      <img src="Capture d’écran 2026-02-25 154909.png" alt="GameHub">
+    </a>
+    <a href="music.html" class="music-btn" title="Music">🎵</a>
+  </div>
+
+  <!-- Search + Duration -->
+  <div class="search-bar">
+    <input type="text" id="search" class="search-input" placeholder="Search a game…">
+    <select id="durationFilter">
+      <option value="">All durations</option>
+      <option value="5">5 minutes</option>
+      <option value="10">10 minutes</option>
+      <option value="20">20 minutes</option>
+      <option value="30">30 minutes</option>
+    </select>
+  </div>
+
+</header>
+
+
+<!-- ═══════════════════ MOOD ═══════════════════ -->
+<div class="mood-toggle-wrap">
+  <button class="mood-toggle-btn" onclick="toggleMoodBar()">🎭 How are you feeling?</button>
+</div>
+
+<div id="moodBar">
+  <button class="mood-btn" onclick="setMood('fun')"        data-tags="arcade,reflexes"        style="background:rgba(251,191,36,0.15);  border:2px solid rgba(251,191,36,0.5);  color:#fbbf24;">😄 Fun & Chill</button>
+  <button class="mood-btn" onclick="setMood('adrenaline')" data-tags="action,fps,survival"    style="background:rgba(239,68,68,0.15);   border:2px solid rgba(239,68,68,0.5);   color:#ef4444;">⚡ Adrenaline</button>
+  <button class="mood-btn" onclick="setMood('reflechir')"  data-tags="strategie,combat"       style="background:rgba(99,102,241,0.15);  border:2px solid rgba(99,102,241,0.5);  color:#818cf8;">🧠 Think Hard</button>
+  <button class="mood-btn" onclick="setMood('rapide')"     data-tags="arcade,classique"       style="background:rgba(16,185,129,0.15);  border:2px solid rgba(16,185,129,0.5);  color:#10b981;">⚡ Quick Game</button>
+  <button class="mood-btn" onclick="setMood('competitif')" data-tags="multijoueur,fps,sport"  style="background:rgba(0,234,255,0.15);   border:2px solid rgba(0,234,255,0.5);   color:#00eaff;">🏆 Competitive</button>
+  <button class="mood-btn" onclick="setMood('zombie')"     data-tags="zombie,survival,action" style="background:rgba(57,255,20,0.15);   border:2px solid rgba(57,255,20,0.5);   color:#39ff14;">🧟 Kill Zombies</button>
+</div>
+
+
+<!-- ═══════════════════ PC GAMES ═══════════════════ -->
+<h2 class="section-title">Games on PC</h2>
+
+<div class="row-container">
+  <button class="scroll-btn scroll-btn-left"  onclick="scrollRow('gamesRowPC', -1)">‹</button>
+  <button class="scroll-btn scroll-btn-right" onclick="scrollRow('gamesRowPC',  1)">›</button>
+
+  <div class="row" id="gamesRowPC">
+
+    <a href="reevox-games (12).html" class="card" data-title="plus de jeu" data-duration="30" data-tags="action,adrenaline,classique">
+      <img class="card-thumb" src="Capture%20d%27%C3%A9cran%202026-03-02%20150111.png">
+      <div class="card-title">plus de jeu</div>
+    </a>
+
+    <a href="jeux1.html" class="card" data-title="snake" data-duration="5" data-tags="arcade,reflexes,classique">
+      <img class="card-thumb" src="Capture d’écran 2026-02-15 200634.png">
+      <div class="card-title">snake</div>
+    </a>
+
+    <a href="jeux3.html" class="card" data-title="zombattack" data-duration="20" data-tags="action,survival,zombie">
+      <img class="card-thumb" src="Capture d’écran 2026-02-16 111511.png">
+      <div class="card-title">zombattack</div>
+    </a>
+
+    <a href="jeux4.html" class="card" data-title="conkete" data-duration="30" data-tags="strategie,combat,multijoueur">
+      <img class="card-thumb" src="Capture d’écran 2026-02-16 180219.png">
+      <div class="card-title">conkete</div>
+    </a>
+
+    
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════ MOBILE GAMES ═══════════════════ -->
+<h2 class="section-title">Games on Mobile</h2>
+
+<div class="row-container">
+  <button class="scroll-btn scroll-btn-left"  onclick="scrollRow('gamesRowMobile', -1)">‹</button>
+  <button class="scroll-btn scroll-btn-right" onclick="scrollRow('gamesRowMobile',  1)">›</button>
+
+  <div class="row" id="gamesRowMobile">
+
+    <a href="jeux2.html" class="card" data-title="exive" data-duration="10" data-tags="arcade,reflexes,mobile">
+      <img class="card-thumb" src="Capture d’écran 2026-02-16 105203.png">
+      <div class="card-title">exive</div>
+    </a>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script>
+  // ── Mood ──
+  let currentMood = null;
+
+  function toggleMoodBar() {
+    const bar = document.getElementById('moodBar');
+    bar.style.display = bar.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function setMood(mood) {
+    const btn = event.currentTarget;
+    if (currentMood === mood) {
+      currentMood = null;
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('hide'));
+      return;
+    }
+    currentMood = mood;
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tags = btn.dataset.tags.split(',');
+    document.querySelectorAll('.card').forEach(card => {
+      const cardTags = (card.dataset.tags || '').split(',');
+      card.classList.toggle('hide', !tags.some(t => cardTags.includes(t)));
+    });
+  }
+
+  // ── Scroll arrows ──
+  function scrollRow(rowId, direction) {
+    document.getElementById(rowId).scrollBy({ left: direction * 340, behavior: 'smooth' });
+  }
+
+  // ── Filters (search + duration) ──
+  const searchInput     = document.getElementById('search');
+  const durationFilter  = document.getElementById('durationFilter');
+  const allCards        = document.querySelectorAll('.card');
+
+  function applyFilters() {
+    const q   = searchInput.value.toLowerCase();
+    const dur = durationFilter.value;
+    allCards.forEach(card => {
+      const titleMatch    = card.dataset.title.toLowerCase().includes(q);
+      const durationMatch = !dur || card.dataset.duration === dur;
+      card.classList.toggle('hide', !(titleMatch && durationMatch));
+    });
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  durationFilter.addEventListener('change', applyFilters);
+</script>
+
+<!-- ── Subscription gate ── -->
+<script>
+  (function() {
+    const user   = localStorage.getItem('reevox_user');
+    const expiry = localStorage.getItem('reevox_subscription_expiry');
+    if (!user || !expiry || parseInt(expiry) < Date.now()) {
+      window.location.href = 'paiement.html';
+    }
+  })();
+</script>
+
+<script src="reevox-mini-player.js"></script>
+
+</body>
+</html>
